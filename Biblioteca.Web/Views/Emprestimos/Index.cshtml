@@ -1,14 +1,23 @@
 ﻿@model IEnumerable<Biblioteca.Domain.Entities.Emprestimo>
 @using System.Linq
+@using Biblioteca.Domain.Enums
 
 @{
     ViewData["Title"] = "Empréstimos";
     Layout = "~/Views/Shared/_LayoutInner.cshtml";
 
     var emprestimos = Model?.ToList() ?? new List<Biblioteca.Domain.Entities.Emprestimo>();
+    var hoje = DateTime.Today;
+
+    foreach (var emprestimo in emprestimos)
+    {
+        emprestimo.AtualizarStatus(hoje);
+    }
+
     var totalEmprestimos = ViewBag.TotalEmprestimos is int te ? te : emprestimos.Count;
     var pendentes = ViewBag.Pendentes is int pe ? pe : emprestimos.Count(e => e.DataDevolucao is null);
     var devolvidos = ViewBag.Devolvidos is int de ? de : emprestimos.Count(e => e.DataDevolucao is not null);
+    var atrasados = emprestimos.Count(e => e.DataDevolucao is null && e.EstaAtrasado(hoje));
 
     var currentPage = ViewBag.CurrentPage is int cp ? cp : 1;
     var totalPages = ViewBag.TotalPages is int tp ? tp : 1;
@@ -55,12 +64,30 @@
                                 <th>Previsão</th>
                                 <th>Devolução</th>
                                 <th>Status</th>
+                                <th>Atraso</th>
                                 <th>Ações</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var e in emprestimos)
                             {
+                                var estaAtrasado = e.DataDevolucao is null && e.EstaAtrasado(hoje);
+                                var diasAtraso = estaAtrasado
+                                    ? (hoje - e.DataPrevistaDevolucao.Date).Days
+                                    : 0;
+
+                                var statusTexto = e.DataDevolucao is not null
+                                    ? "Devolvido"
+                                    : estaAtrasado
+                                        ? "Atrasado"
+                                        : "Ativo";
+
+                                var statusClasse = e.DataDevolucao is not null
+                                    ? "crud-pill-success"
+                                    : estaAtrasado
+                                        ? "crud-pill-danger"
+                                        : "crud-pill-warning";
+
                                 <tr>
                                     <td class="crud-id" data-label="ID">@e.Id</td>
                                     <td class="crud-strong" data-label="Livro">@e.Livro?.Titulo</td>
@@ -71,9 +98,21 @@
                                         @(e.DataDevolucao is null ? "-" : e.DataDevolucao.Value.ToString("dd/MM/yyyy"))
                                     </td>
                                     <td data-label="Status">
-                                        <span class="crud-pill @(e.DataDevolucao is null ? "crud-pill-warning" : "crud-pill-success")">
-                                            @(e.DataDevolucao is null ? "Pendente" : "Devolvido")
+                                        <span class="crud-pill @statusClasse">
+                                            @statusTexto
                                         </span>
+                                    </td>
+                                    <td data-label="Atraso">
+                                        @if (estaAtrasado)
+                                        {
+                                            <span class="text-danger fw-semibold">
+                                                @diasAtraso @(diasAtraso == 1 ? "dia" : "dias")
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span>-</span>
+                                        }
                                     </td>
                                     <td class="crud-actions-cell" data-label="Ações">
                                         <div class="crud-actions">
@@ -141,22 +180,29 @@
             }
 
             <div class="row g-4 crud-stats-row">
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-3 col-md-6">
                     <div class="crud-stat-card crud-stat-gold">
                         <span class="crud-stat-label">Total de Empréstimos</span>
                         <strong class="crud-stat-value">@totalEmprestimos</strong>
                     </div>
                 </div>
 
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-3 col-md-6">
                     <div class="crud-stat-card crud-stat-blue">
-                        <span class="crud-stat-label">Pendentes</span>
+                        <span class="crud-stat-label">Ativos</span>
                         <strong class="crud-stat-value">@pendentes</strong>
                     </div>
                 </div>
 
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-3 col-md-6">
                     <div class="crud-stat-card crud-stat-gold">
+                        <span class="crud-stat-label">Atrasados</span>
+                        <strong class="crud-stat-value">@atrasados</strong>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <div class="crud-stat-card crud-stat-blue">
                         <span class="crud-stat-label">Devolvidos</span>
                         <strong class="crud-stat-value">@devolvidos</strong>
                     </div>

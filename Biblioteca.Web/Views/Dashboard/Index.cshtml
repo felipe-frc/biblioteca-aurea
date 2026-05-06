@@ -6,6 +6,12 @@
     Layout = "~/Views/Shared/_LayoutInner.cshtml";
 
     var ultimosEmprestimos = Model?.ToList() ?? new List<Biblioteca.Domain.Entities.Emprestimo>();
+    var hoje = DateTime.Today;
+
+    foreach (var emprestimo in ultimosEmprestimos)
+    {
+        emprestimo.AtualizarStatus(hoje);
+    }
 
     var totalLivros = ViewBag.TotalLivros is int tl ? tl : 0;
     var livrosDisponiveis = ViewBag.LivrosDisponiveis is int ld ? ld : 0;
@@ -13,6 +19,7 @@
     var totalUsuarios = ViewBag.TotalUsuarios is int tu ? tu : 0;
     var totalEmprestimos = ViewBag.TotalEmprestimos is int te ? te : 0;
     var emprestimosAtivos = ViewBag.EmprestimosAtivos is int ea ? ea : 0;
+    var emprestimosAtrasados = ViewBag.EmprestimosAtrasados is int eat ? eat : 0;
     var emprestimosDevolvidos = ViewBag.EmprestimosDevolvidos is int ed ? ed : 0;
 }
 
@@ -64,22 +71,29 @@
         </div>
 
         <div class="row g-4 crud-stats-row mb-5">
-            <div class="col-lg-4 col-md-6">
+            <div class="col-lg-3 col-md-6">
                 <div class="crud-stat-card crud-stat-gold">
                     <span class="crud-stat-label">Total de Empréstimos</span>
                     <strong class="crud-stat-value">@totalEmprestimos</strong>
                 </div>
             </div>
 
-            <div class="col-lg-4 col-md-6">
+            <div class="col-lg-3 col-md-6">
                 <div class="crud-stat-card crud-stat-blue">
                     <span class="crud-stat-label">Empréstimos Ativos</span>
                     <strong class="crud-stat-value">@emprestimosAtivos</strong>
                 </div>
             </div>
 
-            <div class="col-lg-4 col-md-6">
+            <div class="col-lg-3 col-md-6">
                 <div class="crud-stat-card crud-stat-gold">
+                    <span class="crud-stat-label">Empréstimos Atrasados</span>
+                    <strong class="crud-stat-value">@emprestimosAtrasados</strong>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="crud-stat-card crud-stat-blue">
                     <span class="crud-stat-label">Empréstimos Devolvidos</span>
                     <strong class="crud-stat-value">@emprestimosDevolvidos</strong>
                 </div>
@@ -142,25 +156,57 @@
                             <tr>
                                 <th>Livro</th>
                                 <th>Usuário</th>
-                                <th>Data do Empréstimo</th>
-                                <th>Data de Devolução</th>
+                                <th>Retirada</th>
+                                <th>Previsão</th>
+                                <th>Devolução</th>
                                 <th>Status</th>
+                                <th>Atraso</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var emprestimo in ultimosEmprestimos)
                             {
+                                var estaAtrasado = emprestimo.DataDevolucao is null && emprestimo.EstaAtrasado(hoje);
+                                var diasAtraso = estaAtrasado
+                                    ? (hoje - emprestimo.DataPrevistaDevolucao.Date).Days
+                                    : 0;
+
+                                var statusTexto = emprestimo.DataDevolucao is not null
+                                    ? "Devolvido"
+                                    : estaAtrasado
+                                        ? "Atrasado"
+                                        : "Ativo";
+
+                                var statusClasse = emprestimo.DataDevolucao is not null
+                                    ? "crud-pill-success"
+                                    : estaAtrasado
+                                        ? "crud-pill-danger"
+                                        : "crud-pill-warning";
+
                                 <tr>
                                     <td class="crud-strong" data-label="Livro">@emprestimo.Livro.Titulo</td>
                                     <td data-label="Usuário">@emprestimo.Usuario.Nome</td>
-                                    <td data-label="Data do Empréstimo">@emprestimo.DataEmprestimo.ToString("dd/MM/yyyy")</td>
-                                    <td data-label="Data de Devolução">
+                                    <td data-label="Retirada">@emprestimo.DataEmprestimo.ToString("dd/MM/yyyy")</td>
+                                    <td data-label="Previsão">@emprestimo.DataPrevistaDevolucao.ToString("dd/MM/yyyy")</td>
+                                    <td data-label="Devolução">
                                         @(emprestimo.DataDevolucao.HasValue ? emprestimo.DataDevolucao.Value.ToString("dd/MM/yyyy") : "-")
                                     </td>
                                     <td data-label="Status">
-                                        <span class="crud-pill @(emprestimo.DataDevolucao.HasValue ? "crud-pill-success" : "crud-pill-danger")">
-                                            @(emprestimo.DataDevolucao.HasValue ? "Devolvido" : "Ativo")
+                                        <span class="crud-pill @statusClasse">
+                                            @statusTexto
                                         </span>
+                                    </td>
+                                    <td data-label="Atraso">
+                                        @if (estaAtrasado)
+                                        {
+                                            <span class="text-danger fw-semibold">
+                                                @diasAtraso @(diasAtraso == 1 ? "dia" : "dias")
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span>-</span>
+                                        }
                                     </td>
                                 </tr>
                             }
