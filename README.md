@@ -1,8 +1,8 @@
-[![CI (.NET)](https://github.com/felipe-frc/biblioteca-aurea/actions/workflows/dotnet.yml/badge.svg)](https://github.com/felipe-frc/biblioteca-aurea/actions/workflows/dotnet.yml)
-
 # 📚 Biblioteca Áurea
 
-Sistema web de gerenciamento de biblioteca desenvolvido com **ASP.NET Core MVC**, **Entity Framework Core** e **Azure SQL Server**, com foco em **arquitetura em camadas**, **regras de negócio**, **testes automatizados** e **boas práticas de Engenharia de Software**.
+[![CI (.NET)](https://github.com/felipe-frc/biblioteca-aurea/actions/workflows/main_biblioteca-aurea.yml/badge.svg)](https://github.com/felipe-frc/biblioteca-aurea/actions)
+
+Sistema web de gerenciamento de biblioteca desenvolvido com **ASP.NET Core MVC**, **Entity Framework Core** e **Azure SQL Server**, com foco em arquitetura em camadas, regras de negócio, testes automatizados, deploy em nuvem e boas práticas de Engenharia de Software.
 
 O projeto permite controlar livros, usuários e empréstimos, aplicando validações importantes como indisponibilidade de livros emprestados, bloqueio de exclusão quando há histórico vinculado, prevenção de devoluções duplicadas e persistência dos dados em banco relacional na nuvem.
 
@@ -24,35 +24,44 @@ A connection string real não é armazenada no repositório por segurança. Para
 
 Este projeto foi desenvolvido com o objetivo de praticar e demonstrar conhecimentos em:
 
-- Desenvolvimento web com **ASP.NET Core MVC**;
-- Persistência de dados com **Entity Framework Core** e **Azure SQL Server**;
-- Configuração segura de connection string com **User Secrets**;
+- Desenvolvimento web com ASP.NET Core MVC;
+- Persistência de dados com Entity Framework Core e Azure SQL Server;
+- Configuração segura de connection string com User Secrets;
 - Organização em camadas e separação de responsabilidades;
 - Criação de regras de negócio para um domínio real;
-- Testes automatizados com **xUnit**;
-- Integração contínua com **GitHub Actions**;
+- Testes automatizados com xUnit;
+- Integração contínua e deploy automatizado com GitHub Actions;
+- Publicação de aplicação web em ambiente de nuvem;
 - Documentação técnica para portfólio profissional.
 
 ---
 
 ## 🚀 Funcionalidades
 
-### Livros
+### 📚 Livros
 
 - Cadastro, listagem, edição e exclusão de livros;
+- Cadastro de dados bibliográficos completos:
+  - Título;
+  - Autor;
+  - Editora;
+  - Edição;
+  - Data completa de publicação;
+  - Número de páginas;
 - Controle automático de disponibilidade;
-- Livro fica **indisponível** ao ser emprestado;
-- Livro volta a ficar **disponível** após devolução;
-- Bloqueio de exclusão quando existe histórico de empréstimos vinculado.
+- Livro fica indisponível ao ser emprestado;
+- Livro volta a ficar disponível após devolução;
+- Bloqueio de exclusão quando existe histórico de empréstimos vinculado;
+- Paginação na listagem de livros.
 
-### Usuários
+### 👥 Usuários
 
 - Cadastro, listagem, edição e exclusão de usuários;
 - Validação de dados cadastrais;
 - Validação de e-mail;
 - Bloqueio de exclusão quando existe histórico de empréstimos vinculado.
 
-### Empréstimos
+### 🔄 Empréstimos
 
 - Criação e listagem de empréstimos;
 - Registro de devoluções;
@@ -60,7 +69,8 @@ Este projeto foi desenvolvido com o objetivo de praticar e demonstrar conhecimen
 - Validação contra empréstimo de livro indisponível;
 - Validação contra devolução duplicada;
 - Controle de status do empréstimo;
-- Mensagens de sucesso e erro com **Bootstrap Alerts**.
+- Atualização automática da disponibilidade do livro;
+- Mensagens de sucesso e erro com Bootstrap Alerts.
 
 ---
 
@@ -77,6 +87,7 @@ Este projeto foi desenvolvido com o objetivo de praticar e demonstrar conhecimen
 | Testes | xUnit |
 | CI/CD | GitHub Actions |
 | Front-end | Bootstrap 5 + Razor Views |
+| Versionamento | Git / GitHub |
 
 ---
 
@@ -84,7 +95,7 @@ Este projeto foi desenvolvido com o objetivo de praticar e demonstrar conhecimen
 
 O projeto utiliza uma organização em camadas para separar responsabilidades e facilitar manutenção, testes e evolução.
 
-```text
+```txt
 biblioteca-aurea/
 │
 ├── Biblioteca/               # Domínio — entidades, contratos e regras de negócio
@@ -95,6 +106,7 @@ biblioteca-aurea/
 ├── Biblioteca.Web/           # Aplicação web MVC
 │   ├── Controllers/          # Controllers da aplicação
 │   ├── Views/                # Razor Views
+│   ├── ViewModels/           # ViewModels utilizados nas telas
 │   ├── Data/                 # DbContext e migrations do EF Core
 │   ├── Services/             # Serviços de aplicação
 │   ├── wwwroot/              # Arquivos estáticos
@@ -105,8 +117,8 @@ biblioteca-aurea/
 │
 ├── docs/images/              # Imagens utilizadas na documentação
 │
-├── .github/workflows/        # Pipeline de integração contínua
-│   └── dotnet.yml            # Build e testes automatizados
+├── .github/workflows/        # Pipeline de CI/CD
+│   └── main_biblioteca-aurea.yml
 │
 └── Biblioteca.sln            # Solution do projeto
 ```
@@ -117,27 +129,91 @@ biblioteca-aurea/
 
 ### 🏠 Home
 
-![Tela inicial do sistema Biblioteca Áurea](docs/images/home.png)
+Tela inicial do sistema Biblioteca Áurea, com apresentação do projeto e acesso às principais áreas do sistema.
+
+<p align="center">
+  <img src="docs/images/home.png" alt="Home" width="800">
+</p>
+
+---
 
 ### 📋 Listagem de Livros
 
-![Tela de listagem de livros](docs/images/livros.png)
+Tela de listagem de livros com paginação, disponibilidade e dados bibliográficos completos, incluindo editora, edição, data de publicação e número de páginas.
+
+<p align="center">
+  <img src="docs/images/livros.png" alt="Listagem de Livros" width="800">
+</p>
+
+---
 
 ### ➕ Cadastro de Livro
 
-![Tela de cadastro de livro](docs/images/cadastro-livros.png)
+Tela de cadastro de livro com os campos de título, autor, editora, edição, data de publicação e número de páginas.
+
+<p align="center">
+  <img src="docs/images/cadastro-livros.png" alt="Cadastro de Livro" width="800">
+</p>
+
+---
+
+### ✏️ Edição de Livro
+
+Tela de edição dos dados bibliográficos do livro.
+
+<p align="center">
+  <img src="docs/images/edicao-livros.png" alt="Edição de Livro" width="800">
+</p>
+
+---
 
 ### 👨🏻‍💻 Listagem de Usuários
 
-![Tela de listagem de usuários](docs/images/usuarios.png)
+Tela de listagem de usuários cadastrados, com indicadores e ações de edição e exclusão.
+
+<p align="center">
+  <img src="docs/images/usuarios.png" alt="Listagem de Usuários" width="800">
+</p>
+
+---
 
 ### ➕ Cadastro de Usuário
 
-![Tela de cadastro de usuário](docs/images/cadastro-usuario.png)
+Tela de cadastro de usuário com validação dos dados principais.
+
+<p align="center">
+  <img src="docs/images/cadastro-usuario.png" alt="Cadastro de Usuário" width="800">
+</p>
+
+---
+
+### ✏️ Edição de Usuário
+
+Tela de edição dos dados cadastrais do usuário.
+
+<p align="center">
+  <img src="docs/images/edicao-usuario.png" alt="Edição de Usuário" width="800">
+</p>
+
+---
 
 ### 🔄 Controle de Empréstimos
 
-![Tela de controle de empréstimos](docs/images/emprestimos.png)
+Tela de controle de empréstimos, com listagem, status, devolução e indicadores.
+
+<p align="center">
+  <img src="docs/images/emprestimos.png" alt="Controle de Empréstimos" width="800">
+</p>
+
+---
+
+### ➕ Novo Empréstimo
+
+Tela de registro de novo empréstimo, vinculando usuário e livro disponível.
+
+<p align="center">
+  <img src="docs/images/novo-emprestimo.png" alt="Novo Empréstimo" width="800">
+</p>
 
 ---
 
@@ -145,12 +221,12 @@ biblioteca-aurea/
 
 ### Pré-requisitos
 
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-- VS Code
-- Extensão C# para VS Code
-- Git instalado
-- Entity Framework Core CLI
-- Banco Azure SQL Server configurado
+- .NET 8 SDK;
+- VS Code;
+- Extensão C# para VS Code;
+- Git instalado;
+- Entity Framework Core CLI;
+- Banco Azure SQL Server configurado.
 
 Caso ainda não tenha o Entity Framework CLI instalado, execute:
 
@@ -179,7 +255,7 @@ dotnet restore
 
 ### 3. Configure a connection string com User Secrets
 
-Por segurança, a connection string real **não fica salva no `appsettings.json`**.
+Por segurança, a connection string real não fica salva no `appsettings.json`.
 
 Entre na pasta do projeto web:
 
@@ -205,7 +281,14 @@ O arquivo `appsettings.json` deve permanecer com um valor genérico:
 {
   "ConnectionStrings": {
     "DefaultConnection": "CONFIGURE_A_CONNECTION_STRING_IN_USER_SECRETS_OR_AZURE"
-  }
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*"
 }
 ```
 
@@ -217,6 +300,12 @@ Ainda dentro de `Biblioteca.Web`, execute:
 
 ```bash
 dotnet ef database update
+```
+
+Ou, a partir da raiz do repositório:
+
+```bash
+dotnet ef database update --project Biblioteca.Web --startup-project Biblioteca.Web
 ```
 
 ---
@@ -237,13 +326,13 @@ dotnet run --project Biblioteca.Web
 
 Após iniciar, o terminal exibirá uma URL parecida com:
 
-```text
+```txt
 Now listening on: http://localhost:5026
 ```
 
 Abra essa URL no navegador:
 
-```text
+```txt
 http://localhost:5026
 ```
 
@@ -265,10 +354,13 @@ O projeto possui testes automatizados com **xUnit** para validar regras importan
 
 - Bloqueio de empréstimo para livro indisponível;
 - Validação de devolução de empréstimos;
-- Prevenção de operações inválidas;
-- Regras relacionadas ao histórico de empréstimos.
+- Prevenção de devolução duplicada;
+- Validação de dados obrigatórios;
+- Validação de regras relacionadas ao histórico de empréstimos;
+- Regras de criação e atualização de livros;
+- Proteção contra regressões em fluxos principais.
 
-Além disso, a pipeline de **GitHub Actions** executa build e testes automaticamente a cada alteração enviada para a branch `main`.
+Além disso, a pipeline de **GitHub Actions** executa build, testes e deploy automaticamente a cada alteração enviada para a branch `main`.
 
 ---
 
@@ -280,11 +372,15 @@ A separação entre `Biblioteca`, `Biblioteca.Web` e `Biblioteca.Tests` foi adot
 
 ### Entity Framework Core + Azure SQL Server
 
-O projeto utiliza **Entity Framework Core** com **Azure SQL Server**, aproximando a aplicação de um cenário real de produção. As migrations foram recriadas para SQL Server, garantindo tipos adequados como `nvarchar`, `datetime2`, `int` e `bit`.
+O projeto utiliza Entity Framework Core com Azure SQL Server, aproximando a aplicação de um cenário real de produção. As migrations foram configuradas para SQL Server, utilizando tipos adequados como `nvarchar`, `datetime2`, `int` e `bit`.
+
+### Dados bibliográficos dos livros
+
+A entidade `Livro` foi evoluída para armazenar informações mais completas, como editora, edição, data completa de publicação e número de páginas. Essa melhoria torna o cadastro mais realista e mais próximo de um sistema de biblioteca profissional.
 
 ### User Secrets e configuração no Azure
 
-A connection string real não é armazenada no GitHub. Em ambiente local, o projeto utiliza **User Secrets**. No deploy, a connection string é configurada diretamente no **Azure App Service**, mantendo dados sensíveis fora do repositório.
+A connection string real não é armazenada no GitHub. Em ambiente local, o projeto utiliza User Secrets. No deploy, a connection string é configurada diretamente no Azure App Service, mantendo dados sensíveis fora do repositório.
 
 ### Testes com xUnit
 
@@ -292,7 +388,7 @@ O xUnit foi escolhido por sua integração com o ecossistema .NET e por permitir
 
 ### CI/CD com GitHub Actions
 
-A integração contínua automatiza o processo de build, testes e deploy para o **Azure App Service**, aumentando a confiabilidade do repositório e demonstrando cuidado com qualidade de software.
+A integração contínua automatiza o processo de build, testes e deploy para o Azure App Service, aumentando a confiabilidade do repositório e demonstrando cuidado com qualidade de software.
 
 ### Bootstrap + Razor Views
 
@@ -300,26 +396,44 @@ O Bootstrap foi utilizado para acelerar a construção da interface e manter o f
 
 ---
 
+## 🧾 Releases
+
+### v2.4.0 — Dados bibliográficos dos livros
+
+Versão que adicionou dados bibliográficos completos ao cadastro de livros, incluindo editora, edição, data completa de publicação e número de páginas.
+
+### v2.3.0 — Deploy no Azure App Service
+
+Versão responsável pela publicação da aplicação no Azure App Service com banco de dados Azure SQL Server e deploy automatizado via GitHub Actions.
+
+---
+
 ## 📈 Melhorias Futuras
 
-- Configuração de domínio personalizado;
+- Busca de livros por título, autor e editora;
+- Filtros na listagem de livros por disponibilidade, autor, editora e data de publicação;
+- Cadastro de categorias ou nichos de livros;
+- Catálogo público para visitantes visualizarem livros disponíveis;
 - Autenticação e autorização com ASP.NET Core Identity;
-- Busca avançada por título, autor e categoria;
-- Dashboard com indicadores de empréstimos e disponibilidade;
+- Área administrativa protegida por login;
+- Controle de permissões por perfil, como administrador e bibliotecário;
+- Dashboard com indicadores de livros, usuários e empréstimos;
+- Prazo previsto de devolução dos empréstimos;
+- Identificação automática de empréstimos em atraso;
 - API REST para consumo por aplicações externas;
-- Testes de integração com banco em memória;
-- Paginação e filtros avançados nas listagens;
-- Melhorias de responsividade e acessibilidade.
+- Melhorias de responsividade, acessibilidade e experiência do usuário;
+- Configuração de domínio personalizado.
 
 ---
 
 ## 📄 Licença
 
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE.txt](LICENSE.txt) para mais detalhes.
+Este projeto está sob a licença MIT. Veja o arquivo `LICENSE.txt` para mais detalhes.
 
 ---
 
 ## 👨‍💻 Autor
 
-**Marcos Felipe França**  
-[LinkedIn](https://www.linkedin.com/in/marcosfelipefrc) · [GitHub](https://github.com/felipe-frc)
+**Marcos Felipe França**
+
+[LinkedIn](https://www.linkedin.com/) · [GitHub](https://github.com/felipe-frc)
