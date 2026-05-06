@@ -83,7 +83,7 @@ namespace Biblioteca.Web.Controllers
             if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
                 return Redirect(returnUrl);
 
-            return RedirectToAction("Index", "Livros");
+            return RedirectToAction("Index", "Dashboard");
         }
 
         [HttpPost("logout")]
@@ -97,3 +97,4 @@ namespace Biblioteca.Web.Controllers
         }
     }
 }
+

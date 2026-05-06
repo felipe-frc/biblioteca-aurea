@@ -56,16 +56,16 @@
 
                 <div class="collapse navbar-collapse" id="innerMenu">
                     <ul class="navbar-nav ms-auto inner-nav-list">
-                        <li class="nav-item">
-                            <a class="nav-link inner-nav-link @(controllerAtual == "Home" ? "active" : "")"
-                               href="@Url.Action("Index", "Home")"
-                               aria-current="@(controllerAtual == "Home" ? "page" : "false")">
-                                Home
-                            </a>
-                        </li>
-
                         @if (usuarioLogado)
                         {
+                            <li class="nav-item">
+                                <a class="nav-link inner-nav-link @(controllerAtual == "Dashboard" ? "active" : "")"
+                                   href="@Url.Action("Index", "Dashboard")"
+                                   aria-current="@(controllerAtual == "Dashboard" ? "page" : "false")">
+                                    Dashboard
+                                </a>
+                            </li>
+
                             <li class="nav-item">
                                 <a class="nav-link inner-nav-link @(controllerAtual == "Livros" ? "active" : "")"
                                    href="@Url.Action("Index", "Livros")"
@@ -91,6 +91,14 @@
                             </li>
 
                             <li class="nav-item">
+                                <a class="nav-link inner-nav-link @(controllerAtual == "Catalogo" ? "active" : "")"
+                                   href="@Url.Action("Index", "Catalogo")"
+                                   aria-current="@(controllerAtual == "Catalogo" ? "page" : "false")">
+                                    Catálogo
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
                                 <form asp-controller="Admin"
                                       asp-action="Logout"
                                       method="post"
@@ -104,6 +112,14 @@
                         }
                         else
                         {
+                            <li class="nav-item">
+                                <a class="nav-link inner-nav-link @(controllerAtual == "Home" ? "active" : "")"
+                                   href="@Url.Action("Index", "Home")"
+                                   aria-current="@(controllerAtual == "Home" ? "page" : "false")">
+                                    Home
+                                </a>
+                            </li>
+
                             <li class="nav-item">
                                 <a class="nav-link inner-nav-link @(controllerAtual == "Catalogo" ? "active" : "")"
                                    href="@Url.Action("Index", "Catalogo")"

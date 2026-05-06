@@ -1,0 +1,173 @@
+﻿@model IEnumerable<Biblioteca.Domain.Entities.Emprestimo>
+@using System.Linq
+
+@{
+    ViewData["Title"] = "Dashboard Administrativo";
+    Layout = "~/Views/Shared/_LayoutInner.cshtml";
+
+    var ultimosEmprestimos = Model?.ToList() ?? new List<Biblioteca.Domain.Entities.Emprestimo>();
+
+    var totalLivros = ViewBag.TotalLivros is int tl ? tl : 0;
+    var livrosDisponiveis = ViewBag.LivrosDisponiveis is int ld ? ld : 0;
+    var livrosEmprestados = ViewBag.LivrosEmprestados is int le ? le : 0;
+    var totalUsuarios = ViewBag.TotalUsuarios is int tu ? tu : 0;
+    var totalEmprestimos = ViewBag.TotalEmprestimos is int te ? te : 0;
+    var emprestimosAtivos = ViewBag.EmprestimosAtivos is int ea ? ea : 0;
+    var emprestimosDevolvidos = ViewBag.EmprestimosDevolvidos is int ed ? ed : 0;
+}
+
+<section class="crud-page">
+    <div class="container">
+        @if (TempData["Erro"] is not null)
+        {
+            <div class="crud-alert crud-alert-danger">@TempData["Erro"]</div>
+        }
+
+        <div class="crud-header">
+            <div>
+                <h1 class="crud-title">Dashboard Administrativo</h1>
+                <span class="crud-line"></span>
+                <p class="mt-3 text-muted">
+                    Acompanhe os principais indicadores da Biblioteca Áurea e acesse rapidamente as áreas de gerenciamento.
+                </p>
+            </div>
+        </div>
+
+        <div class="row g-4 crud-stats-row mb-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="crud-stat-card crud-stat-gold">
+                    <span class="crud-stat-label">Total de Livros</span>
+                    <strong class="crud-stat-value">@totalLivros</strong>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="crud-stat-card crud-stat-blue">
+                    <span class="crud-stat-label">Livros Disponíveis</span>
+                    <strong class="crud-stat-value">@livrosDisponiveis</strong>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="crud-stat-card crud-stat-gold">
+                    <span class="crud-stat-label">Livros Emprestados</span>
+                    <strong class="crud-stat-value">@livrosEmprestados</strong>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="crud-stat-card crud-stat-blue">
+                    <span class="crud-stat-label">Usuários</span>
+                    <strong class="crud-stat-value">@totalUsuarios</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 crud-stats-row mb-5">
+            <div class="col-lg-4 col-md-6">
+                <div class="crud-stat-card crud-stat-gold">
+                    <span class="crud-stat-label">Total de Empréstimos</span>
+                    <strong class="crud-stat-value">@totalEmprestimos</strong>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="crud-stat-card crud-stat-blue">
+                    <span class="crud-stat-label">Empréstimos Ativos</span>
+                    <strong class="crud-stat-value">@emprestimosAtivos</strong>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="crud-stat-card crud-stat-gold">
+                    <span class="crud-stat-label">Empréstimos Devolvidos</span>
+                    <strong class="crud-stat-value">@emprestimosDevolvidos</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="crud-header">
+            <div>
+                <h2 class="crud-title fs-2">Atalhos Rápidos</h2>
+                <span class="crud-line"></span>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-5">
+            <div class="col-lg-3 col-md-6">
+                <a asp-controller="Livros" asp-action="Create" class="crud-primary-btn w-100 text-center">
+                    + Novo Livro
+                </a>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <a asp-controller="Usuarios" asp-action="Create" class="crud-primary-btn w-100 text-center">
+                    + Novo Usuário
+                </a>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <a asp-controller="Emprestimos" asp-action="Create" class="crud-primary-btn w-100 text-center">
+                    + Novo Empréstimo
+                </a>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <a asp-controller="Catalogo" asp-action="Index" class="crud-secondary-btn w-100 text-center">
+                    Ver Catálogo
+                </a>
+            </div>
+        </div>
+
+        <div class="crud-header">
+            <div>
+                <h2 class="crud-title fs-2">Últimos Empréstimos</h2>
+                <span class="crud-line"></span>
+            </div>
+        </div>
+
+        @if (!ultimosEmprestimos.Any())
+        {
+            <div class="crud-empty-state">
+                <h3>Nenhum empréstimo registrado.</h3>
+                <p>Os últimos empréstimos realizados aparecerão aqui.</p>
+            </div>
+        }
+        else
+        {
+            <div class="crud-table-card">
+                <div class="crud-table-wrap">
+                    <table class="crud-table">
+                        <thead>
+                            <tr>
+                                <th>Livro</th>
+                                <th>Usuário</th>
+                                <th>Data do Empréstimo</th>
+                                <th>Data de Devolução</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var emprestimo in ultimosEmprestimos)
+                            {
+                                <tr>
+                                    <td class="crud-strong" data-label="Livro">@emprestimo.Livro.Titulo</td>
+                                    <td data-label="Usuário">@emprestimo.Usuario.Nome</td>
+                                    <td data-label="Data do Empréstimo">@emprestimo.DataEmprestimo.ToString("dd/MM/yyyy")</td>
+                                    <td data-label="Data de Devolução">
+                                        @(emprestimo.DataDevolucao.HasValue ? emprestimo.DataDevolucao.Value.ToString("dd/MM/yyyy") : "-")
+                                    </td>
+                                    <td data-label="Status">
+                                        <span class="crud-pill @(emprestimo.DataDevolucao.HasValue ? "crud-pill-success" : "crud-pill-danger")">
+                                            @(emprestimo.DataDevolucao.HasValue ? "Devolvido" : "Ativo")
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+</section>
