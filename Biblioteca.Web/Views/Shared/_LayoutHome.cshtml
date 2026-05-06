@@ -44,16 +44,16 @@
 
                 <div class="collapse navbar-collapse" id="mainMenu">
                     <ul class="navbar-nav ms-auto site-nav-list">
-                        <li class="nav-item">
-                            <a class="nav-link site-nav-link @(controllerAtual == "Home" ? "active" : "")"
-                               href="@Url.Action("Index", "Home")"
-                               aria-current="@(controllerAtual == "Home" ? "page" : "false")">
-                                Home
-                            </a>
-                        </li>
-
                         @if (usuarioLogado)
                         {
+                            <li class="nav-item">
+                                <a class="nav-link site-nav-link @(controllerAtual == "Dashboard" ? "active" : "")"
+                                   href="@Url.Action("Index", "Dashboard")"
+                                   aria-current="@(controllerAtual == "Dashboard" ? "page" : "false")">
+                                    Dashboard
+                                </a>
+                            </li>
+
                             <li class="nav-item">
                                 <a class="nav-link site-nav-link @(controllerAtual == "Livros" ? "active" : "")"
                                    href="@Url.Action("Index", "Livros")"
@@ -79,6 +79,14 @@
                             </li>
 
                             <li class="nav-item">
+                                <a class="nav-link site-nav-link @(controllerAtual == "Catalogo" ? "active" : "")"
+                                   href="@Url.Action("Index", "Catalogo")"
+                                   aria-current="@(controllerAtual == "Catalogo" ? "page" : "false")">
+                                    Catálogo
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
                                 <form asp-controller="Admin"
                                       asp-action="Logout"
                                       method="post"
@@ -92,6 +100,14 @@
                         }
                         else
                         {
+                            <li class="nav-item">
+                                <a class="nav-link site-nav-link @(controllerAtual == "Home" ? "active" : "")"
+                                   href="@Url.Action("Index", "Home")"
+                                   aria-current="@(controllerAtual == "Home" ? "page" : "false")">
+                                    Home
+                                </a>
+                            </li>
+
                             <li class="nav-item">
                                 <a class="nav-link site-nav-link @(controllerAtual == "Catalogo" ? "active" : "")"
                                    href="@Url.Action("Index", "Catalogo")"
@@ -125,16 +141,17 @@
                     <div class="col-lg-3 col-md-6 d-flex flex-column align-items-center text-center">
                         <h4 class="site-footer-title">Navegação</h4>
                         <ul class="site-footer-links">
-                            <li><a href="@Url.Action("Index", "Home")">Home</a></li>
-
                             @if (usuarioLogado)
                             {
+                                <li><a href="@Url.Action("Index", "Dashboard")">Dashboard</a></li>
                                 <li><a href="@Url.Action("Index", "Livros")">Livros</a></li>
                                 <li><a href="@Url.Action("Index", "Usuarios")">Usuários</a></li>
                                 <li><a href="@Url.Action("Index", "Emprestimos")">Empréstimos</a></li>
+                                <li><a href="@Url.Action("Index", "Catalogo")">Catálogo</a></li>
                             }
                             else
                             {
+                                <li><a href="@Url.Action("Index", "Home")">Home</a></li>
                                 <li><a href="@Url.Action("Index", "Catalogo")">Catálogo</a></li>
                                 <li><a href="@Url.Action("Login", "Admin")">Login Administrativo</a></li>
                             }
@@ -148,7 +165,7 @@
 
                             @if (usuarioLogado)
                             {
-                                <li><a href="@Url.Action("Index", "Livros")">Área Administrativa</a></li>
+                                <li><a href="@Url.Action("Index", "Dashboard")">Área Administrativa</a></li>
                             }
                             else
                             {
