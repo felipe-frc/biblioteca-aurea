@@ -24,6 +24,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 </head>
 <body class="inner-body">
+    @{
+        var controllerAtual = ViewContext.RouteData.Values["controller"]?.ToString();
+        var usuarioLogado = User.Identity?.IsAuthenticated == true;
+    }
+
     <!-- ============================================
          HEADER / NAVBAR INTERNO
          ============================================ -->
@@ -52,33 +57,69 @@
                 <div class="collapse navbar-collapse" id="innerMenu">
                     <ul class="navbar-nav ms-auto inner-nav-list">
                         <li class="nav-item">
-                            <a class="nav-link inner-nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")"
+                            <a class="nav-link inner-nav-link @(controllerAtual == "Home" ? "active" : "")"
                                href="@Url.Action("Index", "Home")"
-                               aria-current="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "page" : "false")">
+                               aria-current="@(controllerAtual == "Home" ? "page" : "false")">
                                 Home
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link inner-nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Livros" ? "active" : "")"
-                               href="@Url.Action("Index", "Livros")"
-                               aria-current="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Livros" ? "page" : "false")">
-                                Livros
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link inner-nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Usuarios" ? "active" : "")"
-                               href="@Url.Action("Index", "Usuarios")"
-                               aria-current="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Usuarios" ? "page" : "false")">
-                                Usuários
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link inner-nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Emprestimos" ? "active" : "")"
-                               href="@Url.Action("Index", "Emprestimos")"
-                               aria-current="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Emprestimos" ? "page" : "false")">
-                                Empréstimos
-                            </a>
-                        </li>
+
+                        @if (usuarioLogado)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link inner-nav-link @(controllerAtual == "Livros" ? "active" : "")"
+                                   href="@Url.Action("Index", "Livros")"
+                                   aria-current="@(controllerAtual == "Livros" ? "page" : "false")">
+                                    Livros
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link inner-nav-link @(controllerAtual == "Usuarios" ? "active" : "")"
+                                   href="@Url.Action("Index", "Usuarios")"
+                                   aria-current="@(controllerAtual == "Usuarios" ? "page" : "false")">
+                                    Usuários
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link inner-nav-link @(controllerAtual == "Emprestimos" ? "active" : "")"
+                                   href="@Url.Action("Index", "Emprestimos")"
+                                   aria-current="@(controllerAtual == "Emprestimos" ? "page" : "false")">
+                                    Empréstimos
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <form asp-controller="Admin"
+                                      asp-action="Logout"
+                                      method="post"
+                                      class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="nav-link inner-nav-link border-0 bg-transparent">
+                                        Sair
+                                    </button>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link inner-nav-link @(controllerAtual == "Catalogo" ? "active" : "")"
+                                   href="@Url.Action("Index", "Catalogo")"
+                                   aria-current="@(controllerAtual == "Catalogo" ? "page" : "false")">
+                                    Catálogo
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link inner-nav-link @(controllerAtual == "Admin" ? "active" : "")"
+                                   href="@Url.Action("Login", "Admin")"
+                                   aria-current="@(controllerAtual == "Admin" ? "page" : "false")">
+                                    Login Administrativo
+                                </a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>

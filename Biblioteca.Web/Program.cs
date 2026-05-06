@@ -1,3 +1,4 @@
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Biblioteca.Services;
 using Biblioteca.Web.Data;
 using Biblioteca.Web.Services;
@@ -6,6 +7,18 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/admin/login";
+        options.LogoutPath = "/admin/logout";
+        options.AccessDeniedPath = "/admin/login";
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+        options.SlidingExpiration = true;
+    });
+
+builder.Services.AddAuthorization();
 
 builder.Services.AddDbContext<BibliotecaDbContext>(options =>
 {
@@ -16,12 +29,12 @@ builder.Services.AddDbContext<BibliotecaDbContext>(options =>
         sqlOptions =>
         {
             sqlOptions.EnableRetryOnFailure(
-                maxRetryCount: 2,
-                maxRetryDelay: TimeSpan.FromSeconds(5),
+                maxRetryCount: 5,
+                maxRetryDelay: TimeSpan.FromSeconds(10),
                 errorNumbersToAdd: null
             );
 
-            sqlOptions.CommandTimeout(15);
+            sqlOptions.CommandTimeout(60);
         });
 });
 
@@ -38,13 +51,14 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
+    app.UseHttpsRedirection();
 }
 
-app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

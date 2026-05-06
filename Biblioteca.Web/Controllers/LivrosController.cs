@@ -2,10 +2,12 @@
 using Biblioteca.Web.Data;
 using Biblioteca.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 namespace Biblioteca.Web.Controllers
 {
+    [Authorize]
     public class LivrosController : Controller
     {
         private readonly BibliotecaDbContext _context;
@@ -281,3 +283,4 @@ namespace Biblioteca.Web.Controllers
         }
     }
 }
+

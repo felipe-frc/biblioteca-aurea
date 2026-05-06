@@ -2,6 +2,7 @@
 using Biblioteca.Web.Data;
 using Biblioteca.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -10,6 +11,7 @@ namespace Biblioteca.Web.Controllers
     /// <summary>
     /// Controller responsável pelo gerenciamento de usuários da biblioteca.
     /// </summary>
+    [Authorize]
     public class UsuariosController : Controller
     {
         private readonly BibliotecaDbContext _context;

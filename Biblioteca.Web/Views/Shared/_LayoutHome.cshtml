@@ -16,6 +16,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 </head>
 <body>
+    @{
+        var controllerAtual = ViewContext.RouteData.Values["controller"]?.ToString();
+        var usuarioLogado = User.Identity?.IsAuthenticated == true;
+    }
+
     <header>
         <nav class="navbar navbar-expand-lg site-navbar fixed-top">
             <div class="container site-navbar-container">
@@ -40,33 +45,69 @@
                 <div class="collapse navbar-collapse" id="mainMenu">
                     <ul class="navbar-nav ms-auto site-nav-list">
                         <li class="nav-item">
-                            <a class="nav-link site-nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")"
+                            <a class="nav-link site-nav-link @(controllerAtual == "Home" ? "active" : "")"
                                href="@Url.Action("Index", "Home")"
-                               aria-current="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "page" : "false")">
+                               aria-current="@(controllerAtual == "Home" ? "page" : "false")">
                                 Home
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link site-nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Livros" ? "active" : "")"
-                               href="@Url.Action("Index", "Livros")"
-                               aria-current="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Livros" ? "page" : "false")">
-                                Livros
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link site-nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Usuarios" ? "active" : "")"
-                               href="@Url.Action("Index", "Usuarios")"
-                               aria-current="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Usuarios" ? "page" : "false")">
-                                Usuários
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link site-nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Emprestimos" ? "active" : "")"
-                               href="@Url.Action("Index", "Emprestimos")"
-                               aria-current="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Emprestimos" ? "page" : "false")">
-                                Empréstimos
-                            </a>
-                        </li>
+
+                        @if (usuarioLogado)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link site-nav-link @(controllerAtual == "Livros" ? "active" : "")"
+                                   href="@Url.Action("Index", "Livros")"
+                                   aria-current="@(controllerAtual == "Livros" ? "page" : "false")">
+                                    Livros
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link site-nav-link @(controllerAtual == "Usuarios" ? "active" : "")"
+                                   href="@Url.Action("Index", "Usuarios")"
+                                   aria-current="@(controllerAtual == "Usuarios" ? "page" : "false")">
+                                    Usuários
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link site-nav-link @(controllerAtual == "Emprestimos" ? "active" : "")"
+                                   href="@Url.Action("Index", "Emprestimos")"
+                                   aria-current="@(controllerAtual == "Emprestimos" ? "page" : "false")">
+                                    Empréstimos
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <form asp-controller="Admin"
+                                      asp-action="Logout"
+                                      method="post"
+                                      class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="nav-link site-nav-link border-0 bg-transparent">
+                                        Sair
+                                    </button>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link site-nav-link @(controllerAtual == "Catalogo" ? "active" : "")"
+                                   href="@Url.Action("Index", "Catalogo")"
+                                   aria-current="@(controllerAtual == "Catalogo" ? "page" : "false")">
+                                    Catálogo
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link site-nav-link @(controllerAtual == "Admin" ? "active" : "")"
+                                   href="@Url.Action("Login", "Admin")"
+                                   aria-current="@(controllerAtual == "Admin" ? "page" : "false")">
+                                    Login Administrativo
+                                </a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
@@ -85,18 +126,34 @@
                         <h4 class="site-footer-title">Navegação</h4>
                         <ul class="site-footer-links">
                             <li><a href="@Url.Action("Index", "Home")">Home</a></li>
-                            <li><a href="@Url.Action("Index", "Livros")">Livros</a></li>
-                            <li><a href="@Url.Action("Index", "Usuarios")">Usuários</a></li>
-                            <li><a href="@Url.Action("Index", "Emprestimos")">Empréstimos</a></li>
+
+                            @if (usuarioLogado)
+                            {
+                                <li><a href="@Url.Action("Index", "Livros")">Livros</a></li>
+                                <li><a href="@Url.Action("Index", "Usuarios")">Usuários</a></li>
+                                <li><a href="@Url.Action("Index", "Emprestimos")">Empréstimos</a></li>
+                            }
+                            else
+                            {
+                                <li><a href="@Url.Action("Index", "Catalogo")">Catálogo</a></li>
+                                <li><a href="@Url.Action("Login", "Admin")">Login Administrativo</a></li>
+                            }
                         </ul>
                     </div>
 
                     <div class="col-lg-3 col-md-6 d-flex flex-column align-items-center text-center">
-                        <h4 class="site-footer-title">Suporte</h4>
+                        <h4 class="site-footer-title">Sistema</h4>
                         <ul class="site-footer-links">
-                            <li><a href="#contato">Contato</a></li>
-                            <li><a href="#faq">FAQ</a></li>
-                            <li><a href="#politicas">Políticas</a></li>
+                            <li><a href="@Url.Action("Index", "Catalogo")">Catálogo Público</a></li>
+
+                            @if (usuarioLogado)
+                            {
+                                <li><a href="@Url.Action("Index", "Livros")">Área Administrativa</a></li>
+                            }
+                            else
+                            {
+                                <li><a href="@Url.Action("Login", "Admin")">Acesso Administrativo</a></li>
+                            }
                         </ul>
                     </div>
 

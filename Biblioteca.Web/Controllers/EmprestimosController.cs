@@ -2,6 +2,7 @@
 using Biblioteca.Web.Data;
 using Biblioteca.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -11,6 +12,7 @@ namespace Biblioteca.Web.Controllers
     /// <summary>
     /// Controller responsável pelo gerenciamento de empréstimos da biblioteca.
     /// </summary>
+    [Authorize]
     public class EmprestimosController : Controller
     {
         private readonly BibliotecaDbContext _context;

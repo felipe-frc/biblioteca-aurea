@@ -1,0 +1,104 @@
+﻿@model IEnumerable<Biblioteca.Domain.Entities.Livro>
+@using System.Linq
+
+@{
+    ViewData["Title"] = "Catálogo Público";
+    Layout = "~/Views/Shared/_LayoutInner.cshtml";
+
+    var livros = Model?.ToList() ?? new List<Biblioteca.Domain.Entities.Livro>();
+    var totalLivros = ViewBag.TotalLivros is int tl ? tl : livros.Count;
+    var totalDisponiveis = ViewBag.TotalDisponiveis is int td ? td : livros.Count(l => l.Disponivel);
+    var totalEmprestados = totalLivros - totalDisponiveis;
+}
+
+<section class="crud-page crud-page-livros">
+    <div class="container">
+        @if (TempData["Erro"] is not null)
+        {
+            <div class="crud-alert crud-alert-danger">@TempData["Erro"]</div>
+        }
+
+        <div class="crud-header">
+            <div>
+                <h1 class="crud-title">Catálogo Público</h1>
+                <span class="crud-line"></span>
+                <p class="mt-3 text-muted">
+                    Consulte os livros cadastrados na Biblioteca Áurea e verifique a disponibilidade de cada obra.
+                </p>
+            </div>
+
+            <a class="crud-secondary-btn" asp-controller="Admin" asp-action="Login">
+                Login Administrativo
+            </a>
+        </div>
+
+        @if (!livros.Any())
+        {
+            <div class="crud-empty-state">
+                <h3>Nenhum livro disponível no catálogo.</h3>
+                <p>O acervo ainda não possui livros cadastrados.</p>
+            </div>
+        }
+        else
+        {
+            <div class="row g-4 crud-stats-row mb-4">
+                <div class="col-lg-4 col-md-6">
+                    <div class="crud-stat-card crud-stat-gold">
+                        <span class="crud-stat-label">Total de Livros</span>
+                        <strong class="crud-stat-value">@totalLivros</strong>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="crud-stat-card crud-stat-blue">
+                        <span class="crud-stat-label">Disponíveis</span>
+                        <strong class="crud-stat-value">@totalDisponiveis</strong>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="crud-stat-card crud-stat-gold">
+                        <span class="crud-stat-label">Emprestados</span>
+                        <strong class="crud-stat-value">@totalEmprestados</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="crud-table-card">
+                <div class="crud-table-wrap">
+                    <table class="crud-table">
+                        <thead>
+                            <tr>
+                                <th>Título</th>
+                                <th>Autor</th>
+                                <th>Editora</th>
+                                <th>Edição</th>
+                                <th>Publicação</th>
+                                <th>Páginas</th>
+                                <th>Disponibilidade</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var livro in livros)
+                            {
+                                <tr>
+                                    <td class="crud-strong" data-label="Título">@livro.Titulo</td>
+                                    <td data-label="Autor">@livro.Autor</td>
+                                    <td data-label="Editora">@livro.Editora</td>
+                                    <td data-label="Edição">@livro.Edicao</td>
+                                    <td data-label="Publicação">@livro.DataPublicacao.ToString("dd/MM/yyyy")</td>
+                                    <td data-label="Páginas">@livro.NumeroPaginas</td>
+                                    <td data-label="Disponibilidade">
+                                        <span class="crud-pill @(livro.Disponivel ? "crud-pill-success" : "crud-pill-danger")">
+                                            @(livro.Disponivel ? "Disponível" : "Emprestado")
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+</section>
