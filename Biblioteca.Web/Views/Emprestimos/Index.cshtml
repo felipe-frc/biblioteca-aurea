@@ -15,9 +15,20 @@
     }
 
     var totalEmprestimos = ViewBag.TotalEmprestimos is int te ? te : emprestimos.Count;
-    var pendentes = ViewBag.Pendentes is int pe ? pe : emprestimos.Count(e => e.DataDevolucao is null);
-    var devolvidos = ViewBag.Devolvidos is int de ? de : emprestimos.Count(e => e.DataDevolucao is not null);
-    var atrasados = emprestimos.Count(e => e.DataDevolucao is null && e.EstaAtrasado(hoje));
+
+    var ativos = ViewBag.Ativos is int at
+        ? at
+        : emprestimos.Count(e => e.DataDevolucao is null && !e.EstaAtrasado(hoje));
+
+    var atrasados = ViewBag.Atrasados is int atr
+        ? atr
+        : emprestimos.Count(e => e.DataDevolucao is null && e.EstaAtrasado(hoje));
+
+    var devolvidos = ViewBag.Devolvidos is int de
+        ? de
+        : emprestimos.Count(e => e.DataDevolucao is not null);
+
+    var filtroStatus = ViewBag.FiltroStatus?.ToString() ?? "todos";
 
     var currentPage = ViewBag.CurrentPage is int cp ? cp : 1;
     var totalPages = ViewBag.TotalPages is int tp ? tp : 1;
@@ -40,14 +51,78 @@
         <div class="crud-header">
             <h1 class="crud-title">Empréstimos</h1>
             <span class="crud-line"></span>
-            <a asp-action="Create" class="crud-primary-btn">+ Novo Empréstimo</a>
+            <a asp-controller="Emprestimos" asp-action="Create" class="crud-primary-btn">+ Novo Empréstimo</a>
+        </div>
+
+        <div class="crud-form-card mb-4">
+            <form method="get" action="/Emprestimos">
+                <div class="crud-form-grid">
+                    <div class="crud-form-group crud-form-group-small">
+                        <label for="filtroStatus" class="crud-form-label">Status do Empréstimo</label>
+
+                        <select id="filtroStatus"
+                                name="filtroStatus"
+                                class="crud-form-control crud-form-select">
+                            @if (filtroStatus == "todos")
+                            {
+                                <option value="todos" selected>Todos</option>
+                            }
+                            else
+                            {
+                                <option value="todos">Todos</option>
+                            }
+
+                            @if (filtroStatus == "ativos")
+                            {
+                                <option value="ativos" selected>Ativos</option>
+                            }
+                            else
+                            {
+                                <option value="ativos">Ativos</option>
+                            }
+
+                            @if (filtroStatus == "atrasados")
+                            {
+                                <option value="atrasados" selected>Atrasados</option>
+                            }
+                            else
+                            {
+                                <option value="atrasados">Atrasados</option>
+                            }
+
+                            @if (filtroStatus == "devolvidos")
+                            {
+                                <option value="devolvidos" selected>Devolvidos</option>
+                            }
+                            else
+                            {
+                                <option value="devolvidos">Devolvidos</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="crud-form-actions">
+                    <button type="submit" class="crud-primary-btn">Filtrar</button>
+                    <a href="/Emprestimos" class="crud-secondary-btn">Limpar Filtros</a>
+                </div>
+            </form>
         </div>
 
         @if (!emprestimos.Any())
         {
             <div class="crud-empty-state">
-                <h3>Nenhum empréstimo cadastrado.</h3>
-                <p>Registre o primeiro empréstimo para acompanhar as devoluções.</p>
+                <h3>Nenhum empréstimo encontrado.</h3>
+
+                @if (filtroStatus != "todos")
+                {
+                    <p>Nenhum resultado corresponde ao status selecionado.</p>
+                    <a href="/Emprestimos" class="crud-secondary-btn mt-3">Limpar Filtros</a>
+                }
+                else
+                {
+                    <p>Registre o primeiro empréstimo para acompanhar as devoluções.</p>
+                }
             </div>
         }
         else
@@ -73,20 +148,20 @@
                             {
                                 var estaAtrasado = e.DataDevolucao is null && e.EstaAtrasado(hoje);
                                 var diasAtraso = estaAtrasado
-                                    ? (hoje - e.DataPrevistaDevolucao.Date).Days
-                                    : 0;
+                                ? (hoje - e.DataPrevistaDevolucao.Date).Days
+                                : 0;
 
                                 var statusTexto = e.DataDevolucao is not null
-                                    ? "Devolvido"
-                                    : estaAtrasado
-                                        ? "Atrasado"
-                                        : "Ativo";
+                                ? "Devolvido"
+                                : estaAtrasado
+                                ? "Atrasado"
+                                : "Ativo";
 
                                 var statusClasse = e.DataDevolucao is not null
-                                    ? "crud-pill-success"
-                                    : estaAtrasado
-                                        ? "crud-pill-danger"
-                                        : "crud-pill-warning";
+                                ? "crud-pill-success"
+                                : estaAtrasado
+                                ? "crud-pill-danger"
+                                : "crud-pill-warning";
 
                                 <tr>
                                     <td class="crud-id" data-label="ID">@e.Id</td>
@@ -118,7 +193,11 @@
                                         <div class="crud-actions">
                                             @if (e.DataDevolucao is null)
                                             {
-                                                <form asp-action="Devolver" asp-route-id="@e.Id" method="post" class="crud-inline-form">
+                                                <form asp-controller="Emprestimos"
+                                                      asp-action="Devolver"
+                                                      asp-route-id="@e.Id"
+                                                      method="post"
+                                                      class="crud-inline-form">
                                                     @Html.AntiForgeryToken()
                                                     <button type="submit" class="crud-action-btn crud-action-btn-edit">
                                                         <span class="crud-action-icon" aria-hidden="true">
@@ -149,7 +228,13 @@
                 <nav class="crud-pagination" aria-label="Paginação">
                     @if (hasPreviousPage)
                     {
-                        <a class="crud-pagination-link" asp-action="Index" asp-route-page="@(currentPage - 1)">Anterior</a>
+                        <a class="crud-pagination-link"
+                           asp-controller="Emprestimos"
+                           asp-action="Index"
+                           asp-route-page="@(currentPage - 1)"
+                           asp-route-filtroStatus="@filtroStatus">
+                            Anterior
+                        </a>
                     }
                     else
                     {
@@ -164,13 +249,25 @@
                         }
                         else
                         {
-                            <a class="crud-pagination-link" asp-action="Index" asp-route-page="@i">@i</a>
+                            <a class="crud-pagination-link"
+                               asp-controller="Emprestimos"
+                               asp-action="Index"
+                               asp-route-page="@i"
+                               asp-route-filtroStatus="@filtroStatus">
+                                @i
+                            </a>
                         }
                     }
 
                     @if (hasNextPage)
                     {
-                        <a class="crud-pagination-link" asp-action="Index" asp-route-page="@(currentPage + 1)">Próxima</a>
+                        <a class="crud-pagination-link"
+                           asp-controller="Emprestimos"
+                           asp-action="Index"
+                           asp-route-page="@(currentPage + 1)"
+                           asp-route-filtroStatus="@filtroStatus">
+                            Próxima
+                        </a>
                     }
                     else
                     {
@@ -182,7 +279,7 @@
             <div class="row g-4 crud-stats-row">
                 <div class="col-lg-3 col-md-6">
                     <div class="crud-stat-card crud-stat-gold">
-                        <span class="crud-stat-label">Total de Empréstimos</span>
+                        <span class="crud-stat-label">Empréstimos Encontrados</span>
                         <strong class="crud-stat-value">@totalEmprestimos</strong>
                     </div>
                 </div>
@@ -190,7 +287,7 @@
                 <div class="col-lg-3 col-md-6">
                     <div class="crud-stat-card crud-stat-blue">
                         <span class="crud-stat-label">Ativos</span>
-                        <strong class="crud-stat-value">@pendentes</strong>
+                        <strong class="crud-stat-value">@ativos</strong>
                     </div>
                 </div>
 

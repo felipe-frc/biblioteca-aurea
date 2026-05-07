@@ -33,23 +33,59 @@ namespace Biblioteca.Web.Controllers
         }
 
         /// <summary>
-        /// Exibe a listagem paginada de empréstimos.
+        /// Exibe a listagem paginada de empréstimos com filtro por status.
         /// </summary>
-        public IActionResult Index(int page = 1)
+        public IActionResult Index(int page = 1, string? filtroStatus = "todos")
         {
             const int pageSize = 6;
+            var hoje = DateTime.Today;
 
-            var query = _context.Emprestimos
+            filtroStatus = string.IsNullOrWhiteSpace(filtroStatus)
+                ? "todos"
+                : filtroStatus.Trim().ToLowerInvariant();
+
+            var baseQuery = _context.Emprestimos
                 .Include(e => e.Usuario)
                 .Include(e => e.Livro)
                 .AsNoTracking()
-                .OrderByDescending(e => e.Id);
+                .AsQueryable();
 
-            var totalEmprestimos = query.Count();
-            var pendentes = query.Count(e => e.DataDevolucao == null);
-            var devolvidos = query.Count(e => e.DataDevolucao != null);
+            var queryFiltrada = baseQuery;
 
-            var totalPages = (int)Math.Ceiling(totalEmprestimos / (double)pageSize);
+            if (filtroStatus == "ativos")
+            {
+                queryFiltrada = queryFiltrada.Where(e =>
+                    e.DataDevolucao == null &&
+                    e.DataPrevistaDevolucao >= hoje);
+            }
+            else if (filtroStatus == "atrasados")
+            {
+                queryFiltrada = queryFiltrada.Where(e =>
+                    e.DataDevolucao == null &&
+                    e.DataPrevistaDevolucao < hoje);
+            }
+            else if (filtroStatus == "devolvidos")
+            {
+                queryFiltrada = queryFiltrada.Where(e =>
+                    e.DataDevolucao != null);
+            }
+
+            queryFiltrada = queryFiltrada.OrderByDescending(e => e.Id);
+
+            var totalEncontrados = queryFiltrada.Count();
+
+            var totalAtivos = baseQuery.Count(e =>
+                e.DataDevolucao == null &&
+                e.DataPrevistaDevolucao >= hoje);
+
+            var totalAtrasados = baseQuery.Count(e =>
+                e.DataDevolucao == null &&
+                e.DataPrevistaDevolucao < hoje);
+
+            var totalDevolvidos = baseQuery.Count(e =>
+                e.DataDevolucao != null);
+
+            var totalPages = (int)Math.Ceiling(totalEncontrados / (double)pageSize);
             if (totalPages == 0)
                 totalPages = 1;
 
@@ -59,14 +95,14 @@ namespace Biblioteca.Web.Controllers
             if (page > totalPages)
                 page = totalPages;
 
-            var emprestimos = query
+            var emprestimos = queryFiltrada
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToList();
 
             foreach (var emprestimo in emprestimos)
             {
-                emprestimo.AtualizarStatus(DateTime.Today);
+                emprestimo.AtualizarStatus(hoje);
             }
 
             ViewBag.CurrentPage = page;
@@ -74,9 +110,11 @@ namespace Biblioteca.Web.Controllers
             ViewBag.HasPreviousPage = page > 1;
             ViewBag.HasNextPage = page < totalPages;
 
-            ViewBag.TotalEmprestimos = totalEmprestimos;
-            ViewBag.Pendentes = pendentes;
-            ViewBag.Devolvidos = devolvidos;
+            ViewBag.TotalEmprestimos = totalEncontrados;
+            ViewBag.Ativos = totalAtivos;
+            ViewBag.Atrasados = totalAtrasados;
+            ViewBag.Devolvidos = totalDevolvidos;
+            ViewBag.FiltroStatus = filtroStatus;
 
             return View(emprestimos);
         }
@@ -122,9 +160,9 @@ namespace Biblioteca.Web.Controllers
             try
             {
                 _emprestimoAppService.Realizar(
-    model.LivroId!.Value,
-    model.UsuarioId!.Value,
-    model.DataPrevistaDevolucao!.Value);
+                    model.LivroId!.Value,
+                    model.UsuarioId!.Value,
+                    model.DataPrevistaDevolucao!.Value);
 
                 TempData["Sucesso"] = "Empréstimo registrado com sucesso!";
                 return RedirectToAction(nameof(Index));
