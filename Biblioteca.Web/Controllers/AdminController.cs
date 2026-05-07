@@ -22,7 +22,7 @@ namespace Biblioteca.Web.Controllers
         public IActionResult Login(string? returnUrl = null)
         {
             if (User.Identity?.IsAuthenticated == true)
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Index", "Dashboard");
 
             ViewData["ReturnUrl"] = returnUrl;
             return View(new LoginViewModel());
@@ -93,8 +93,7 @@ namespace Biblioteca.Web.Controllers
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
             TempData["Sucesso"] = "Logout realizado com sucesso.";
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction(nameof(Login));
         }
     }
 }
-

@@ -3,6 +3,8 @@
 @{
     bool temEmprestimoAtivo = ViewBag.TemEmprestimoAtivo ?? false;
     bool temHistoricoEmprestimo = ViewBag.TemHistoricoEmprestimo ?? false;
+    bool podeExcluir = !temEmprestimoAtivo && !temHistoricoEmprestimo;
+
     ViewData["Title"] = "Excluir Usuário";
     Layout = "~/Views/Shared/_LayoutInner.cshtml";
 }
@@ -17,9 +19,12 @@
         </div>
 
         <div class="crud-form-card">
-            <div class="crud-alert crud-alert-warning">
-                Tem certeza que deseja excluir o usuário abaixo?
-            </div>
+            @if (podeExcluir)
+            {
+                <div class="crud-alert crud-alert-warning">
+                    Tem certeza que deseja excluir o usuário abaixo?
+                </div>
+            }
 
             <div class="crud-delete-list">
                 <div class="crud-delete-item"><strong>Id:</strong> @Model.Id</div>
