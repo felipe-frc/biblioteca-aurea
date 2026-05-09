@@ -4,7 +4,7 @@
 
 Sistema web de gerenciamento de biblioteca desenvolvido com **ASP.NET Core MVC**, **Entity Framework Core** e **Azure SQL Server**, com foco em arquitetura em camadas, regras de negócio, testes automatizados, deploy em nuvem e boas práticas de Engenharia de Software.
 
-O projeto conta com **catálogo público** para visitantes, **área administrativa protegida por autenticação**, **dashboard com indicadores**, controle completo de livros, usuários e empréstimos — incluindo prazo previsto de devolução e identificação automática de empréstimos em atraso.
+O projeto conta com **catálogo público** para visitantes, **área administrativa protegida por autenticação**, **dashboard com indicadores**, controle completo de livros, usuários e empréstimos — incluindo prazo previsto de devolução, identificação automática de empréstimos em atraso e diferenciação entre empréstimos atrasados em aberto e empréstimos devolvidos fora do prazo.
 
 ---
 
@@ -37,11 +37,29 @@ Este projeto foi desenvolvido com o objetivo de praticar e demonstrar conhecimen
 
 ---
 
+## ⭐ Destaques Técnicos
+
+- Arquitetura em camadas separando domínio, aplicação web e testes;
+- Regras de negócio encapsuladas nas entidades de domínio;
+- Catálogo público acessível sem autenticação;
+- Área administrativa protegida por autenticação via cookies;
+- Controle de empréstimos com os status `Ativo`, `Atrasado`, `Devolvido` e `DevolvidoComAtraso`;
+- Busca e filtros no catálogo público;
+- Validações de domínio para livros, usuários e empréstimos;
+- Bloqueio de exclusão de livros e usuários com histórico de empréstimos;
+- Testes unitários e de integração com xUnit;
+- CI/CD com GitHub Actions e deploy no Azure App Service.
+
+---
+
 ## 🚀 Funcionalidades
 
 ### 🌐 Área Pública (sem login)
 
+- Home pública com apresentação do sistema;
 - Catálogo público de livros com disponibilidade em tempo real;
+- Busca por título, autor e editora;
+- Filtros por disponibilidade dos livros;
 - Visualização de título, autor, editora, edição, data de publicação, número de páginas e status;
 - Acesso à tela de login administrativo.
 
@@ -74,7 +92,11 @@ Este projeto foi desenvolvido com o objetivo de praticar e demonstrar conhecimen
 - Prazo previsto de devolução definido no momento do empréstimo;
 - Identificação automática de empréstimos em atraso;
 - Exibição da quantidade de dias em atraso;
-- Status detalhado: **Ativo** (dentro do prazo), **Atrasado** (prazo vencido, não devolvido), **Devolvido**;
+- Status detalhado:
+  - `Ativo`: empréstimo aberto dentro do prazo;
+  - `Atrasado`: empréstimo aberto com prazo vencido;
+  - `Devolvido`: empréstimo encerrado dentro do prazo;
+  - `DevolvidoComAtraso`: empréstimo encerrado após o prazo previsto;
 - Registro de devoluções com atualização automática do status;
 - Validações: data retroativa, livro indisponível, devolução duplicada;
 - Indicadores na listagem: total, ativos, atrasados e devolvidos;
@@ -109,7 +131,7 @@ biblioteca-aurea/
 │
 ├── Biblioteca/               # Domínio — entidades, contratos e regras de negócio
 │   ├── Domain/Entities/      # Livro, Usuario, Emprestimo
-│   ├── Domain/Enums/         # StatusEmprestimo (Ativo, Atrasado, Devolvido)
+│   ├── Domain/Enums/         # StatusEmprestimo (Ativo, Atrasado, Devolvido, DevolvidoComAtraso)
 │   └── Services/             # Serviços de domínio e validações
 │
 ├── Biblioteca.Web/           # Aplicação web MVC
@@ -265,7 +287,7 @@ Edição dos dados cadastrais do usuário.
 
 ### 🔄 Controle de Empréstimos
 
-Listagem com prazo previsto, status detalhado (Ativo / Atrasado / Devolvido), dias de atraso e indicadores.
+Listagem com prazo previsto, status detalhado (`Ativo`, `Atrasado`, `Devolvido` e `DevolvidoComAtraso`), dias de atraso e indicadores.
 
 <p align="center">
   <a href="docs/images/emprestimos.png">
@@ -339,11 +361,16 @@ dotnet user-secrets set "ConnectionStrings:DefaultConnection" "SUA_CONNECTION_ST
 As credenciais do administrador também não ficam no repositório.
 
 ```bash
-dotnet user-secrets set "Admin:Username" "admin"
-dotnet user-secrets set "Admin:Password" "SUA_SENHA_ADMINISTRATIVA"
+dotnet user-secrets set "AdminCredentials:Username" "admin"
+dotnet user-secrets set "AdminCredentials:Password" "SUA_SENHA_ADMINISTRATIVA"
 ```
 
-No Azure App Service, essas credenciais são configuradas diretamente nas variáveis de ambiente.
+No Azure App Service, configure as credenciais nas variáveis de ambiente usando:
+
+```txt
+AdminCredentials__Username
+AdminCredentials__Password
+```
 
 ---
 
@@ -375,14 +402,24 @@ dotnet test
 
 ## ✅ Qualidade e Testes
 
-O projeto possui testes automatizados com **xUnit** cobrindo as regras de negócio críticas do domínio:
+O projeto possui **73 testes automatizados com xUnit**, cobrindo regras de domínio, validações de entidades, fluxos de empréstimo, devolução, busca, filtros, paginação e testes de integração com banco em memória.
+
+Entre os cenários cobertos estão:
 
 - Bloqueio de empréstimo para livro indisponível;
+- Tentativa de segundo empréstimo para o mesmo livro enquanto ele está indisponível;
 - Validação de devolução de empréstimos;
 - Prevenção de devolução duplicada;
 - Validação de dados obrigatórios;
+- Tratamento de espaços em campos textuais;
+- Validação de IDs inválidos;
 - Regras de prazo previsto e identificação de atraso;
+- Diferenciação entre `Atrasado` e `DevolvidoComAtraso`;
 - Regras de criação e atualização de livros e usuários;
+- Busca por título e autor;
+- Filtros por disponibilidade;
+- Paginação;
+- Fluxo completo de empréstimo, devolução e novo empréstimo;
 - Testes de integração com banco em memória;
 - Proteção contra regressões em fluxos principais.
 
@@ -402,7 +439,9 @@ O sistema implementa autenticação por cookie para proteger as operações de g
 
 ### StatusEmprestimo como enum com lógica no domínio
 
-O status do empréstimo (`Ativo`, `Atrasado`, `Devolvido`) é calculado e atualizado diretamente na entidade `Emprestimo` através dos métodos `AtualizarStatus` e `EstaAtrasado`. Isso garante que a lógica de negócio fique no domínio e não vaze para controllers ou views.
+O status do empréstimo (`Ativo`, `Atrasado`, `Devolvido` e `DevolvidoComAtraso`) é calculado e atualizado diretamente na entidade `Emprestimo` através dos métodos `AtualizarStatus` e `EstaAtrasado`.
+
+A separação entre `Atrasado` e `DevolvidoComAtraso` evita ambiguidade entre empréstimos ainda em aberto com prazo vencido e empréstimos já encerrados fora do prazo, permitindo relatórios e históricos mais precisos.
 
 ### Entity Framework Core + Azure SQL Server
 
@@ -423,6 +462,10 @@ O Bootstrap foi utilizado para acelerar a construção da interface, mantendo o 
 ---
 
 ## 🧾 Releases
+
+### [v3.4.0 — Testes ampliados e melhoria no domínio de empréstimos](https://github.com/felipe-frc/biblioteca-aurea/releases/tag/v3.4.0)
+
+Ampliação da cobertura de testes unitários e de integração, totalizando 73 testes automatizados. Adição do status `DevolvidoComAtraso`, separando empréstimos em aberto com prazo vencido de empréstimos já devolvidos após o prazo.
 
 ### [v3.2.0 — Prazo previsto e empréstimos em atraso](https://github.com/felipe-frc/biblioteca-aurea/releases/tag/v3.2.0)
 
@@ -468,9 +511,9 @@ Primeira versão com dados em memória, menu no console, regras de empréstimo, 
 
 ## 📈 Melhorias Futuras
 
-- Busca por título, autor e editora com filtros por disponibilidade;
 - Cadastro de categorias de livros;
 - API REST para consumo por aplicações externas;
+- Testes específicos para controllers MVC;
 - Melhorias de responsividade, acessibilidade e UX;
 - Domínio personalizado.
 
