@@ -12,6 +12,11 @@
 
     var busca = ViewBag.Busca?.ToString() ?? string.Empty;
     var disponibilidade = ViewBag.Disponibilidade?.ToString() ?? "todos";
+
+    var currentPage = ViewBag.CurrentPage is int cp ? cp : 1;
+    var totalPages = ViewBag.TotalPages is int tp ? tp : 1;
+    var hasPreviousPage = ViewBag.HasPreviousPage is bool hp && hp;
+    var hasNextPage = ViewBag.HasNextPage is bool hn && hn;
 }
 
 <section class="crud-page crud-page-livros">
@@ -37,21 +42,18 @@
 
         <div class="crud-form-card mb-4">
             <form asp-action="Index" method="get">
+                <input type="hidden" name="page" value="1" />
+
                 <div class="crud-form-grid">
                     <div class="crud-form-group">
                         <label for="busca" class="crud-form-label">Buscar livro</label>
-                        <input id="busca"
-                               name="busca"
-                               value="@busca"
-                               class="crud-form-control"
+                        <input id="busca" name="busca" value="@busca" class="crud-form-control"
                                placeholder="Digite título, autor ou editora" />
                     </div>
 
                     <div class="crud-form-group crud-form-group-small">
                         <label for="disponibilidade" class="crud-form-label">Disponibilidade</label>
-                        <select id="disponibilidade"
-                                name="disponibilidade"
-                                class="crud-form-control crud-form-select">
+                        <select id="disponibilidade" name="disponibilidade" class="crud-form-control crud-form-select">
                             @if (disponibilidade == "todos")
                             {
                                 <option value="todos" selected>Todos</option>
@@ -165,6 +167,39 @@
                     </table>
                 </div>
             </div>
+
+            @if (totalPages > 1)
+            {
+                <nav aria-label="Paginação do catálogo" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item @(hasPreviousPage ? "" : "disabled")">
+                            <a class="page-link" asp-controller="Catalogo" asp-action="Index"
+                                   asp-route-page="@(currentPage - 1)" asp-route-busca="@busca"
+                                   asp-route-disponibilidade="@disponibilidade">
+                                Anterior
+                            </a>
+                        </li>
+
+                        @for (var i = 1; i <= totalPages; i++)
+                        {
+                            <li class="page-item @(i == currentPage ? "active" : "")">
+                                <a class="page-link" asp-controller="Catalogo" asp-action="Index" asp-route-page="@i"
+                                       asp-route-busca="@busca" asp-route-disponibilidade="@disponibilidade">
+                                    @i
+                                </a>
+                            </li>
+                        }
+
+                        <li class="page-item @(hasNextPage ? "" : "disabled")">
+                            <a class="page-link" asp-controller="Catalogo" asp-action="Index"
+                                   asp-route-page="@(currentPage + 1)" asp-route-busca="@busca"
+                                   asp-route-disponibilidade="@disponibilidade">
+                                Próxima
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            }
         }
     </div>
 </section>
