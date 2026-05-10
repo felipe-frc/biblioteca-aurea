@@ -88,6 +88,7 @@ namespace Biblioteca.Web.Constants
         public const string ErroEmprestimoNaoEncontrado = "Empréstimo não encontrado.";
         public const string ErroLivroNaoDisponivel = "Este livro não está disponível para empréstimo.";
         public const string ErroUsuarioComEmprestimoAtivo = "Este usuário já possui um empréstimo ativo deste livro.";
+        public const string ErroUsuarioPossuiEmprestimoAtrasado = "Este usuário possui empréstimo em atraso. Registre a devolução antes de realizar um novo empréstimo.";
         public const string ErroUsuarioOuLivroNaoEncontrado = "Usuário ou livro não encontrado.";
         public const string ErroUsuarioInvalido = "Usuário inválido.";
         public const string ErroLivroInvalido = "Livro inválido.";

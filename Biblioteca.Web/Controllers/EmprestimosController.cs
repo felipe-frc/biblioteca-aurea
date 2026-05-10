@@ -86,6 +86,7 @@ namespace Biblioteca.Web.Controllers
                 e.DataDevolucao != null);
 
             var totalPages = (int)Math.Ceiling(totalEncontrados / (double)pageSize);
+
             if (totalPages == 0)
                 totalPages = 1;
 
@@ -177,7 +178,7 @@ namespace Biblioteca.Web.Controllers
             catch (InvalidOperationException ex)
             {
                 _logger.LogWarning(ex, "Operação inválida ao registrar empréstimo.");
-                ModelState.AddModelError(string.Empty, LimparMensagemDeExcecao(ex.Message));
+                AdicionarErroOperacional(model, ex);
                 CarregarCombos(model);
                 return View(model);
             }
@@ -249,29 +250,66 @@ namespace Biblioteca.Web.Controllers
                 .ToList();
         }
 
+        /// <summary>
+        /// Adiciona ao ModelState erros de domínio relacionados aos campos do formulário de empréstimo.
+        /// </summary>
         private void AdicionarErroDeDominio(EmprestimoFormViewModel model, ArgumentException ex)
         {
-            var mensagem = LimparMensagemDeExcecao(ex.Message);
-
             switch (ex.ParamName)
             {
                 case "usuario":
                 case "usuarioId":
-                    ModelState.AddModelError(nameof(model.UsuarioId), mensagem);
+                    ModelState.AddModelError(nameof(model.UsuarioId), Messages.ErroUsuarioInvalido);
                     break;
+
                 case "livro":
                 case "livroId":
-                    ModelState.AddModelError(nameof(model.LivroId), mensagem);
+                    ModelState.AddModelError(nameof(model.LivroId), Messages.ErroLivroInvalido);
                     break;
+
                 case "dataPrevistaDevolucao":
+                    var mensagem = model.DataPrevistaDevolucao.HasValue &&
+                                   model.DataPrevistaDevolucao.Value.Date > DateTime.Today.AddDays(365)
+                        ? Messages.ErroDataPrevistaMaiorQueUmAno
+                        : Messages.ErroDataPrevistaAnteriorHoje;
+
                     ModelState.AddModelError(nameof(model.DataPrevistaDevolucao), mensagem);
                     break;
+
                 default:
                     ModelState.AddModelError(string.Empty, Messages.ErroValidacao);
                     break;
             }
         }
 
+        /// <summary>
+        /// Adiciona ao ModelState erros de operação relacionados à criação de empréstimos.
+        /// </summary>
+        private void AdicionarErroOperacional(EmprestimoFormViewModel model, InvalidOperationException ex)
+        {
+            var mensagem = LimparMensagemDeExcecao(ex.Message);
+
+            if (mensagem == Messages.ErroUsuarioPossuiEmprestimoAtrasado ||
+                mensagem == Messages.ErroUsuarioComEmprestimoAtivo ||
+                mensagem == Messages.ErroUsuarioNaoEncontrado)
+            {
+                ModelState.AddModelError(nameof(model.UsuarioId), mensagem);
+                return;
+            }
+
+            if (mensagem == Messages.ErroLivroNaoDisponivel ||
+                mensagem == Messages.ErroLivroNaoEncontrado)
+            {
+                ModelState.AddModelError(nameof(model.LivroId), mensagem);
+                return;
+            }
+
+            ModelState.AddModelError(string.Empty, mensagem);
+        }
+
+        /// <summary>
+        /// Remove sufixos técnicos de exceções antes de exibir mensagens gerais na interface.
+        /// </summary>
         private static string LimparMensagemDeExcecao(string mensagem)
         {
             var indiceParametro = mensagem.IndexOf(" (Parameter", StringComparison.Ordinal);

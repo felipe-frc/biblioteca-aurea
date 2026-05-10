@@ -1,4 +1,5 @@
-﻿using Biblioteca.Domain.Entities;
+using Biblioteca.Domain.Entities;
+using Biblioteca.Web.Constants;
 using Biblioteca.Web.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,13 +20,29 @@ namespace Biblioteca.Web.Services
             var usuario = _context.Usuarios.FirstOrDefault(u => u.Id == usuarioId);
 
             if (livro is null)
-                throw new InvalidOperationException("Livro não encontrado.");
+                throw new InvalidOperationException(Messages.ErroLivroNaoEncontrado);
 
             if (usuario is null)
-                throw new InvalidOperationException("Usuário não encontrado.");
+                throw new InvalidOperationException(Messages.ErroUsuarioNaoEncontrado);
 
             if (!livro.Disponivel)
-                throw new InvalidOperationException("Este livro não está disponível para empréstimo.");
+                throw new InvalidOperationException(Messages.ErroLivroNaoDisponivel);
+
+            bool usuarioPossuiEmprestimoAtrasado = _context.Emprestimos.Any(e =>
+                e.UsuarioId == usuarioId &&
+                e.DataDevolucao == null &&
+                e.DataPrevistaDevolucao.Date < DateTime.Today);
+
+            if (usuarioPossuiEmprestimoAtrasado)
+                throw new InvalidOperationException(Messages.ErroUsuarioPossuiEmprestimoAtrasado);
+
+            bool usuarioPossuiEmprestimoAtivoDoMesmoLivro = _context.Emprestimos.Any(e =>
+                e.UsuarioId == usuarioId &&
+                e.LivroId == livroId &&
+                e.DataDevolucao == null);
+
+            if (usuarioPossuiEmprestimoAtivoDoMesmoLivro)
+                throw new InvalidOperationException(Messages.ErroUsuarioComEmprestimoAtivo);
 
             var emprestimo = new Emprestimo(livro, usuario, dataPrevistaDevolucao);
 
@@ -44,7 +61,7 @@ namespace Biblioteca.Web.Services
                 .FirstOrDefault(e => e.Id == emprestimoId);
 
             if (emprestimo is null)
-                throw new InvalidOperationException("Empréstimo não encontrado.");
+                throw new InvalidOperationException(Messages.ErroEmprestimoNaoEncontrado);
 
             if (emprestimo.DataDevolucao is not null)
                 throw new InvalidOperationException("Este empréstimo já foi devolvido.");
