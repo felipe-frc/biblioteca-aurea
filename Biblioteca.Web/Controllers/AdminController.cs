@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
+using Biblioteca.Web.Constants;
 using Biblioteca.Web.ViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -43,7 +44,7 @@ namespace Biblioteca.Web.Controllers
             if (string.IsNullOrWhiteSpace(adminUser) || string.IsNullOrWhiteSpace(adminPassword))
             {
                 _logger.LogError("Credenciais administrativas não configuradas.");
-                ModelState.AddModelError(string.Empty, "Credenciais administrativas não configuradas.");
+                ModelState.AddModelError(string.Empty, Messages.ErroCredenciaisAdminNaoConfiguradas);
                 return View(model);
             }
 
@@ -54,7 +55,7 @@ namespace Biblioteca.Web.Controllers
             if (!credenciaisValidas)
             {
                 _logger.LogWarning("Tentativa de login administrativo inválida para o usuário {Usuario}.", model.Usuario);
-                ModelState.AddModelError(string.Empty, "Usuário ou senha inválidos.");
+                ModelState.AddModelError(string.Empty, Messages.ErroCredenciaisInvalidas);
                 return View(model);
             }
 
@@ -92,7 +93,7 @@ namespace Biblioteca.Web.Controllers
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
-            TempData["Sucesso"] = "Logout realizado com sucesso.";
+            TempData["Sucesso"] = Messages.LogoutRealizado;
             return RedirectToAction(nameof(Login));
         }
     }

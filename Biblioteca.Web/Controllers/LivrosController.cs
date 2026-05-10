@@ -1,8 +1,9 @@
-﻿using Biblioteca.Domain.Entities;
+using Biblioteca.Domain.Entities;
+using Biblioteca.Web.Constants;
 using Biblioteca.Web.Data;
 using Biblioteca.Web.ViewModels;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Biblioteca.Web.Controllers
@@ -92,7 +93,7 @@ namespace Biblioteca.Web.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao listar livros na página {Page}", page);
-                TempData["Erro"] = "Erro ao carregar livros. Tente novamente.";
+                TempData["Erro"] = Messages.ErroCarregarLivros;
                 return RedirectToAction(nameof(Index), new { page = 1 });
             }
         }
@@ -122,7 +123,7 @@ namespace Biblioteca.Web.Controllers
                 _context.Livros.Add(livro);
                 _context.SaveChanges();
 
-                TempData["Sucesso"] = "Livro cadastrado com sucesso!";
+                TempData["Sucesso"] = Messages.LivroAdicionado;
                 return RedirectToAction(nameof(Index));
             }
             catch (ArgumentException ex)
@@ -133,13 +134,13 @@ namespace Biblioteca.Web.Controllers
             catch (DbUpdateException ex)
             {
                 _logger.LogError(ex, "Erro de banco de dados ao criar livro: {Titulo}", model.Titulo);
-                ModelState.AddModelError(string.Empty, "Erro ao salvar o livro. Verifique os dados informados.");
+                ModelState.AddModelError(string.Empty, Messages.ErroSalvarLivroDadosInvalidos);
                 return View(model);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro inesperado ao criar livro: {Titulo}", model.Titulo);
-                ModelState.AddModelError(string.Empty, "Ocorreu um erro inesperado ao salvar o livro.");
+                ModelState.AddModelError(string.Empty, Messages.ErroSalvarLivroInesperado);
                 return View(model);
             }
         }
@@ -197,7 +198,7 @@ namespace Biblioteca.Web.Controllers
 
                 _context.SaveChanges();
 
-                TempData["Sucesso"] = "Livro atualizado com sucesso!";
+                TempData["Sucesso"] = Messages.LivroAtualizado;
                 return RedirectToAction(nameof(Index));
             }
             catch (ArgumentException ex)
@@ -208,13 +209,13 @@ namespace Biblioteca.Web.Controllers
             catch (DbUpdateException ex)
             {
                 _logger.LogError(ex, "Erro de banco de dados ao atualizar livro. ID: {LivroId}", model.Id);
-                ModelState.AddModelError(string.Empty, "Erro ao atualizar o livro.");
+                ModelState.AddModelError(string.Empty, Messages.ErroAtualizarLivro);
                 return View(model);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro inesperado ao atualizar livro. ID: {LivroId}", model.Id);
-                ModelState.AddModelError(string.Empty, "Ocorreu um erro inesperado ao atualizar o livro.");
+                ModelState.AddModelError(string.Empty, Messages.ErroAtualizarLivroInesperado);
                 return View(model);
             }
         }
@@ -257,56 +258,64 @@ namespace Biblioteca.Web.Controllers
 
                 if (temEmprestimoRelacionado)
                 {
-                    TempData["Erro"] = "Não é possível excluir este livro porque ele já possui empréstimos registrados.";
+                    TempData["Erro"] = Messages.ErroLivroComEmprestimo;
                     return RedirectToAction(nameof(Index));
                 }
 
                 _context.Livros.Remove(livro);
                 _context.SaveChanges();
 
-                TempData["Sucesso"] = "Livro excluído com sucesso!";
+                TempData["Sucesso"] = Messages.LivroRemovido;
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateException ex)
             {
                 _logger.LogError(ex, "Erro de banco de dados ao deletar livro. ID: {LivroId}", id);
-                TempData["Erro"] = "Erro ao excluir o livro. Tente novamente.";
+                TempData["Erro"] = Messages.ErroExcluirLivro;
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro inesperado ao deletar livro. ID: {LivroId}", id);
-                TempData["Erro"] = "Ocorreu um erro inesperado ao excluir o livro.";
+                TempData["Erro"] = Messages.ErroExcluirLivroInesperado;
                 return RedirectToAction(nameof(Index));
             }
         }
 
         private void AdicionarErroDeDominio(LivroFormViewModel model, ArgumentException ex)
         {
+            var mensagem = LimparMensagemDeExcecao(ex.Message);
+
             switch (ex.ParamName)
             {
                 case "titulo":
-                    ModelState.AddModelError(nameof(model.Titulo), ex.Message);
+                    ModelState.AddModelError(nameof(model.Titulo), mensagem);
                     break;
                 case "autor":
-                    ModelState.AddModelError(nameof(model.Autor), ex.Message);
+                    ModelState.AddModelError(nameof(model.Autor), mensagem);
                     break;
                 case "editora":
-                    ModelState.AddModelError(nameof(model.Editora), ex.Message);
+                    ModelState.AddModelError(nameof(model.Editora), mensagem);
                     break;
                 case "edicao":
-                    ModelState.AddModelError(nameof(model.Edicao), ex.Message);
+                    ModelState.AddModelError(nameof(model.Edicao), mensagem);
                     break;
                 case "dataPublicacao":
-                    ModelState.AddModelError(nameof(model.DataPublicacao), ex.Message);
+                    ModelState.AddModelError(nameof(model.DataPublicacao), mensagem);
                     break;
                 case "numeroPaginas":
-                    ModelState.AddModelError(nameof(model.NumeroPaginas), ex.Message);
+                    ModelState.AddModelError(nameof(model.NumeroPaginas), mensagem);
                     break;
                 default:
-                    ModelState.AddModelError(string.Empty, ex.Message);
+                    ModelState.AddModelError(string.Empty, Messages.ErroValidacao);
                     break;
             }
+        }
+
+        private static string LimparMensagemDeExcecao(string mensagem)
+        {
+            var indiceParametro = mensagem.IndexOf(" (Parameter", StringComparison.Ordinal);
+            return indiceParametro >= 0 ? mensagem[..indiceParametro] : mensagem;
         }
     }
 }

@@ -1,11 +1,11 @@
-﻿using Biblioteca.Web.Services;
+using Biblioteca.Web.Constants;
 using Biblioteca.Web.Data;
+using Biblioteca.Web.Services;
 using Biblioteca.Web.ViewModels;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace Biblioteca.Web.Controllers
 {
@@ -146,10 +146,10 @@ namespace Biblioteca.Web.Controllers
             var livroExiste = _context.Livros.Any(l => l.Id == model.LivroId);
 
             if (!usuarioExiste)
-                ModelState.AddModelError(nameof(model.UsuarioId), "Usuário inválido.");
+                ModelState.AddModelError(nameof(model.UsuarioId), Messages.ErroUsuarioInvalido);
 
             if (!livroExiste)
-                ModelState.AddModelError(nameof(model.LivroId), "Livro inválido.");
+                ModelState.AddModelError(nameof(model.LivroId), Messages.ErroLivroInvalido);
 
             if (!ModelState.IsValid)
             {
@@ -164,27 +164,27 @@ namespace Biblioteca.Web.Controllers
                     model.UsuarioId!.Value,
                     model.DataPrevistaDevolucao!.Value);
 
-                TempData["Sucesso"] = "Empréstimo registrado com sucesso!";
+                TempData["Sucesso"] = Messages.EmprestimoAdicionado;
                 return RedirectToAction(nameof(Index));
             }
             catch (ArgumentException ex)
             {
                 _logger.LogWarning(ex, "Erro de validação ao registrar empréstimo.");
-                ModelState.AddModelError(string.Empty, ex.Message);
+                AdicionarErroDeDominio(model, ex);
                 CarregarCombos(model);
                 return View(model);
             }
             catch (InvalidOperationException ex)
             {
                 _logger.LogWarning(ex, "Operação inválida ao registrar empréstimo.");
-                ModelState.AddModelError(string.Empty, ex.Message);
+                ModelState.AddModelError(string.Empty, LimparMensagemDeExcecao(ex.Message));
                 CarregarCombos(model);
                 return View(model);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro inesperado ao registrar empréstimo.");
-                ModelState.AddModelError(string.Empty, "Ocorreu um erro inesperado ao registrar o empréstimo.");
+                ModelState.AddModelError(string.Empty, Messages.ErroSalvarEmprestimoInesperado);
                 CarregarCombos(model);
                 return View(model);
             }
@@ -206,17 +206,17 @@ namespace Biblioteca.Web.Controllers
             {
                 _emprestimoAppService.Devolver(id);
 
-                TempData["Sucesso"] = "Devolução registrada com sucesso!";
+                TempData["Sucesso"] = Messages.EmprestimoDevolvidoComSucesso;
             }
             catch (InvalidOperationException ex)
             {
                 _logger.LogWarning(ex, "Operação inválida ao devolver o empréstimo de ID {EmprestimoId}.", id);
-                TempData["Erro"] = ex.Message;
+                TempData["Erro"] = LimparMensagemDeExcecao(ex.Message);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro inesperado ao devolver o empréstimo de ID {EmprestimoId}.", id);
-                TempData["Erro"] = "Ocorreu um erro inesperado ao registrar a devolução.";
+                TempData["Erro"] = Messages.ErroRegistrarDevolucao;
             }
 
             return RedirectToAction(nameof(Index));
@@ -247,6 +247,35 @@ namespace Biblioteca.Web.Controllers
                     Text = l.Titulo
                 })
                 .ToList();
+        }
+
+        private void AdicionarErroDeDominio(EmprestimoFormViewModel model, ArgumentException ex)
+        {
+            var mensagem = LimparMensagemDeExcecao(ex.Message);
+
+            switch (ex.ParamName)
+            {
+                case "usuario":
+                case "usuarioId":
+                    ModelState.AddModelError(nameof(model.UsuarioId), mensagem);
+                    break;
+                case "livro":
+                case "livroId":
+                    ModelState.AddModelError(nameof(model.LivroId), mensagem);
+                    break;
+                case "dataPrevistaDevolucao":
+                    ModelState.AddModelError(nameof(model.DataPrevistaDevolucao), mensagem);
+                    break;
+                default:
+                    ModelState.AddModelError(string.Empty, Messages.ErroValidacao);
+                    break;
+            }
+        }
+
+        private static string LimparMensagemDeExcecao(string mensagem)
+        {
+            var indiceParametro = mensagem.IndexOf(" (Parameter", StringComparison.Ordinal);
+            return indiceParametro >= 0 ? mensagem[..indiceParametro] : mensagem;
         }
     }
 }

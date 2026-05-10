@@ -1,10 +1,10 @@
-﻿using Biblioteca.Domain.Entities;
+using Biblioteca.Domain.Entities;
+using Biblioteca.Web.Constants;
 using Biblioteca.Web.Data;
 using Biblioteca.Web.ViewModels;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace Biblioteca.Web.Controllers
 {
@@ -49,6 +49,7 @@ namespace Biblioteca.Web.Controllers
                 .Count();
 
             var totalPages = (int)Math.Ceiling(totalUsuarios / (double)pageSize);
+
             if (totalPages == 0)
                 totalPages = 1;
 
@@ -95,7 +96,7 @@ namespace Biblioteca.Web.Controllers
 
             if (_context.Usuarios.Any(u => u.Email.ToLower() == model.Email.ToLower()))
             {
-                ModelState.AddModelError(nameof(model.Email), "Este e-mail já está cadastrado.");
+                ModelState.AddModelError(nameof(model.Email), Messages.ErroEmailDuplicado);
                 return View(model);
             }
 
@@ -106,25 +107,25 @@ namespace Biblioteca.Web.Controllers
                 _context.Usuarios.Add(usuario);
                 _context.SaveChanges();
 
-                TempData["Sucesso"] = "Usuário cadastrado com sucesso!";
+                TempData["Sucesso"] = Messages.UsuarioAdicionado;
                 return RedirectToAction(nameof(Index));
             }
             catch (ArgumentException ex)
             {
                 _logger.LogWarning(ex, "Erro de validação ao criar usuário.");
-                ModelState.AddModelError(string.Empty, ex.Message);
+                AdicionarErroDeDominio(model, ex);
                 return View(model);
             }
             catch (InvalidOperationException ex)
             {
                 _logger.LogWarning(ex, "Operação inválida ao criar usuário.");
-                ModelState.AddModelError(string.Empty, ex.Message);
+                ModelState.AddModelError(string.Empty, LimparMensagemDeExcecao(ex.Message));
                 return View(model);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro inesperado ao criar usuário.");
-                ModelState.AddModelError(string.Empty, "Ocorreu um erro inesperado ao salvar o usuário.");
+                ModelState.AddModelError(string.Empty, Messages.ErroSalvarUsuarioInesperado);
                 return View(model);
             }
         }
@@ -166,7 +167,7 @@ namespace Biblioteca.Web.Controllers
 
             if (_context.Usuarios.Any(u => u.Id != model.Id && u.Email.ToLower() == model.Email.ToLower()))
             {
-                ModelState.AddModelError(nameof(model.Email), "Este e-mail já está cadastrado para outro usuário.");
+                ModelState.AddModelError(nameof(model.Email), Messages.ErroEmailDuplicadoOutroUsuario);
                 return View(model);
             }
 
@@ -175,25 +176,25 @@ namespace Biblioteca.Web.Controllers
                 usuario.AtualizarDados(model.Nome, model.Email);
                 _context.SaveChanges();
 
-                TempData["Sucesso"] = "Usuário atualizado com sucesso!";
+                TempData["Sucesso"] = Messages.UsuarioAtualizado;
                 return RedirectToAction(nameof(Index));
             }
             catch (ArgumentException ex)
             {
                 _logger.LogWarning(ex, "Erro de validação ao editar o usuário de ID {UsuarioId}.", model.Id);
-                ModelState.AddModelError(string.Empty, ex.Message);
+                AdicionarErroDeDominio(model, ex);
                 return View(model);
             }
             catch (InvalidOperationException ex)
             {
                 _logger.LogWarning(ex, "Operação inválida ao editar o usuário de ID {UsuarioId}.", model.Id);
-                ModelState.AddModelError(string.Empty, ex.Message);
+                ModelState.AddModelError(string.Empty, LimparMensagemDeExcecao(ex.Message));
                 return View(model);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro inesperado ao editar o usuário de ID {UsuarioId}.", model.Id);
-                ModelState.AddModelError(string.Empty, "Ocorreu um erro inesperado ao atualizar o usuário.");
+                ModelState.AddModelError(string.Empty, Messages.ErroAtualizarUsuarioInesperado);
                 return View(model);
             }
         }
@@ -239,7 +240,7 @@ namespace Biblioteca.Web.Controllers
 
             if (temEmprestimoAtivo)
             {
-                TempData["Erro"] = "Não é possível excluir este usuário porque ele possui empréstimo ativo. Primeiro registre a devolução do empréstimo em aberto.";
+                TempData["Erro"] = Messages.ErroUsuarioPossuiEmprestimoAtivo;
                 return RedirectToAction(nameof(Index));
             }
 
@@ -248,7 +249,7 @@ namespace Biblioteca.Web.Controllers
 
             if (temHistoricoEmprestimo)
             {
-                TempData["Erro"] = "Não é possível excluir este usuário porque ele já possui histórico de empréstimos na biblioteca. Para preservar a integridade dos registros, o cadastro deve permanecer no sistema.";
+                TempData["Erro"] = Messages.ErroUsuarioComHistoricoEmprestimo;
                 return RedirectToAction(nameof(Index));
             }
 
@@ -257,21 +258,43 @@ namespace Biblioteca.Web.Controllers
                 _context.Usuarios.Remove(usuario);
                 _context.SaveChanges();
 
-                TempData["Sucesso"] = "Usuário excluído com sucesso!";
+                TempData["Sucesso"] = Messages.UsuarioRemovido;
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateException ex)
             {
                 _logger.LogError(ex, "Erro de banco ao excluir o usuário de ID {UsuarioId}.", id);
-                TempData["Erro"] = "Não foi possível excluir o usuário porque ele ainda está relacionado a registros do sistema.";
+                TempData["Erro"] = Messages.ErroUsuarioRelacionado;
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro inesperado ao excluir o usuário de ID {UsuarioId}.", id);
-                TempData["Erro"] = "Ocorreu um erro inesperado ao excluir o usuário.";
+                TempData["Erro"] = Messages.ErroExcluirUsuarioInesperado;
                 return RedirectToAction(nameof(Index));
             }
+        }
+
+        private void AdicionarErroDeDominio(UsuarioFormViewModel model, ArgumentException ex)
+        {
+            switch (ex.ParamName)
+            {
+                case "nome":
+                    ModelState.AddModelError(nameof(model.Nome), Messages.ErroNomeInvalido);
+                    break;
+                case "email":
+                    ModelState.AddModelError(nameof(model.Email), Messages.ErroEmailInvalido);
+                    break;
+                default:
+                    ModelState.AddModelError(string.Empty, Messages.ErroValidacao);
+                    break;
+            }
+        }
+
+        private static string LimparMensagemDeExcecao(string mensagem)
+        {
+            var indiceParametro = mensagem.IndexOf(" (Parameter", StringComparison.Ordinal);
+            return indiceParametro >= 0 ? mensagem[..indiceParametro] : mensagem;
         }
     }
 }

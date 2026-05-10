@@ -1,4 +1,5 @@
-﻿using Biblioteca.Web.Data;
+using Biblioteca.Web.Constants;
+using Biblioteca.Web.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -69,7 +70,7 @@ namespace Biblioteca.Web.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Erro ao carregar dashboard administrativo.");
-                TempData["Erro"] = "Erro ao carregar o dashboard administrativo.";
+                TempData["Erro"] = Messages.ErroCarregarDashboard;
                 return RedirectToAction("Index", "Livros");
             }
         }

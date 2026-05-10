@@ -1,4 +1,4 @@
-﻿using Biblioteca.Web.Data;
+using Biblioteca.Web.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
