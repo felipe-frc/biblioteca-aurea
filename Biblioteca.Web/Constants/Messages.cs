@@ -92,6 +92,8 @@ namespace Biblioteca.Web.Constants
         public const string ErroUsuarioInvalido = "Usuário inválido.";
         public const string ErroLivroInvalido = "Livro inválido.";
         public const string ErroDataDevolucaoInvalida = "A data de devolução deve ser no futuro.";
+        public const string ErroDataPrevistaAnteriorHoje = "A data prevista não pode ser anterior a hoje.";
+        public const string ErroDataPrevistaMaiorQueUmAno = "A data prevista não pode ultrapassar 365 dias a partir de hoje.";
         public const string ErroRegistrarDevolucao = "Ocorreu um erro inesperado ao registrar a devolução.";
 
         // ============================================

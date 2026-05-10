@@ -109,10 +109,10 @@ namespace Biblioteca.Domain.Entities
                 throw new ArgumentNullException(nameof(usuario));
 
             if (dataPrevistaDevolucao.Date < DateTime.Today)
-                throw new ArgumentException("A data da devolução não pode ser no passado.", nameof(dataPrevistaDevolucao));
+                throw new ArgumentException("A data prevista não pode ser anterior a hoje.", nameof(dataPrevistaDevolucao));
 
             if (dataPrevistaDevolucao.Date > DateTime.Today.AddDays(365))
-                throw new ArgumentException("A data prevista para devolução não pode ultrapassar 365 dias a partir de hoje.", nameof(dataPrevistaDevolucao));
+                throw new ArgumentException("A data prevista não pode ultrapassar 365 dias a partir de hoje.", nameof(dataPrevistaDevolucao));
         }
     }
 }
