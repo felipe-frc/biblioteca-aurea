@@ -402,7 +402,7 @@ dotnet test
 
 ## ✅ Qualidade e Testes
 
-O projeto possui **73 testes automatizados com xUnit**, cobrindo regras de domínio, validações de entidades, fluxos de empréstimo, devolução, busca, filtros, paginação e testes de integração com banco em memória.
+O projeto possui **74 testes automatizados com xUnit**, cobrindo regras de domínio, validações de entidades, fluxos de empréstimo, devolução, busca, filtros, paginação e testes de integração com banco em memória.
 
 Entre os cenários cobertos estão:
 
