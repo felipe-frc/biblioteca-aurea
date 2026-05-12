@@ -14,11 +14,6 @@ namespace Biblioteca.Web.Constants
         public const string ErroCredenciaisInvalidas = "Usuário ou senha inválidos.";
 
         // ============================================
-        // CATÁLOGO - ERRO
-        // ============================================
-        public const string ErroCarregarCatalogo = "Erro ao carregar o catálogo público. Tente novamente.";
-
-        // ============================================
         // DASHBOARD - ERRO
         // ============================================
         public const string ErroCarregarDashboard = "Erro ao carregar o dashboard administrativo.";
@@ -34,7 +29,6 @@ namespace Biblioteca.Web.Constants
         // LIVROS - ERRO
         // ============================================
         public const string ErroCarregarLivros = "Erro ao carregar livros. Tente novamente.";
-        public const string ErroSalvarLivro = "Erro ao salvar o livro. Verifique se os dados já existem.";
         public const string ErroSalvarLivroDadosInvalidos = "Erro ao salvar o livro. Verifique os dados informados.";
         public const string ErroSalvarLivroInesperado = "Ocorreu um erro inesperado ao salvar o livro.";
         public const string ErroAtualizarLivro = "Erro ao atualizar o livro.";
@@ -54,12 +48,8 @@ namespace Biblioteca.Web.Constants
         // ============================================
         // USUÁRIOS - ERRO
         // ============================================
-        public const string ErroCarregarUsuarios = "Erro ao carregar usuários. Tente novamente.";
-        public const string ErroSalvarUsuario = "Erro ao salvar o usuário.";
         public const string ErroSalvarUsuarioInesperado = "Ocorreu um erro inesperado ao salvar o usuário.";
-        public const string ErroAtualizarUsuario = "Erro ao atualizar o usuário.";
         public const string ErroAtualizarUsuarioInesperado = "Ocorreu um erro inesperado ao atualizar o usuário.";
-        public const string ErroExcluirUsuario = "Erro ao excluir o usuário. Tente novamente.";
         public const string ErroExcluirUsuarioInesperado = "Ocorreu um erro inesperado ao excluir o usuário.";
         public const string ErroUsuarioNaoEncontrado = "Usuário não encontrado.";
         public const string ErroNomeInvalido = "Informe um nome válido.";
@@ -74,7 +64,6 @@ namespace Biblioteca.Web.Constants
         // EMPRÉSTIMOS - SUCESSO
         // ============================================
         public const string EmprestimoAdicionado = "Empréstimo registrado com sucesso!";
-        public const string EmprestimoAtualizado = "Empréstimo atualizado com sucesso!";
         public const string EmprestimoDevolvidoComSucesso = "Empréstimo devolvido com sucesso!";
 
         // ============================================
@@ -83,16 +72,12 @@ namespace Biblioteca.Web.Constants
         public const string ErroCarregarEmprestimos = "Erro ao carregar empréstimos. Tente novamente.";
         public const string ErroSalvarEmprestimo = "Erro ao registrar empréstimo.";
         public const string ErroSalvarEmprestimoInesperado = "Ocorreu um erro inesperado ao registrar o empréstimo.";
-        public const string ErroAtualizarEmprestimo = "Erro ao atualizar empréstimo.";
-        public const string ErroExcluirEmprestimo = "Erro ao excluir empréstimo. Tente novamente.";
         public const string ErroEmprestimoNaoEncontrado = "Empréstimo não encontrado.";
         public const string ErroLivroNaoDisponivel = "Este livro não está disponível para empréstimo.";
         public const string ErroUsuarioComEmprestimoAtivo = "Este usuário já possui um empréstimo ativo deste livro.";
         public const string ErroUsuarioPossuiEmprestimoAtrasado = "Este usuário possui empréstimo em atraso. Registre a devolução antes de realizar um novo empréstimo.";
-        public const string ErroUsuarioOuLivroNaoEncontrado = "Usuário ou livro não encontrado.";
         public const string ErroUsuarioInvalido = "Usuário inválido.";
         public const string ErroLivroInvalido = "Livro inválido.";
-        public const string ErroDataDevolucaoInvalida = "A data de devolução deve ser no futuro.";
         public const string ErroDataPrevistaAnteriorHoje = "A data prevista não pode ser anterior a hoje.";
         public const string ErroDataPrevistaMaiorQueUmAno = "A data prevista não pode ultrapassar 365 dias a partir de hoje.";
         public const string ErroRegistrarDevolucao = "Ocorreu um erro inesperado ao registrar a devolução.";
@@ -101,11 +86,5 @@ namespace Biblioteca.Web.Constants
         // VALIDAÇÃO
         // ============================================
         public const string ErroValidacao = "Erro de validação. Verifique os dados informados.";
-        public const string ErroConflitoConcorrencia = "O registro foi modificado por outro usuário. Atualize a página e tente novamente.";
-
-        // ============================================
-        // GERAL
-        // ============================================
-        public const string ErroInesperado = "Ocorreu um erro inesperado. Tente novamente.";
     }
 }
