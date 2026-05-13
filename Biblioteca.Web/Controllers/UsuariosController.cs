@@ -1,6 +1,7 @@
 using Biblioteca.Domain.Entities;
 using Biblioteca.Web.Constants;
 using Biblioteca.Web.Data;
+using Biblioteca.Web.Helpers;
 using Biblioteca.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -116,7 +117,7 @@ namespace Biblioteca.Web.Controllers
             catch (InvalidOperationException ex)
             {
                 _logger.LogWarning(ex, "Operação inválida ao criar usuário.");
-                ModelState.AddModelError(string.Empty, LimparMensagemDeExcecao(ex.Message));
+                ModelState.AddModelError(string.Empty, ExceptionMessageHelper.LimparMensagemDeExcecao(ex.Message));
                 return View(model);
             }
             catch (Exception ex)
@@ -185,7 +186,7 @@ namespace Biblioteca.Web.Controllers
             catch (InvalidOperationException ex)
             {
                 _logger.LogWarning(ex, "Operação inválida ao editar o usuário de ID {UsuarioId}.", model.Id);
-                ModelState.AddModelError(string.Empty, LimparMensagemDeExcecao(ex.Message));
+                ModelState.AddModelError(string.Empty, ExceptionMessageHelper.LimparMensagemDeExcecao(ex.Message));
                 return View(model);
             }
             catch (Exception ex)
@@ -279,19 +280,15 @@ namespace Biblioteca.Web.Controllers
                 case "nome":
                     ModelState.AddModelError(nameof(model.Nome), Messages.ErroNomeInvalido);
                     break;
+
                 case "email":
                     ModelState.AddModelError(nameof(model.Email), Messages.ErroEmailInvalido);
                     break;
+
                 default:
                     ModelState.AddModelError(string.Empty, Messages.ErroValidacao);
                     break;
             }
-        }
-
-        private static string LimparMensagemDeExcecao(string mensagem)
-        {
-            var indiceParametro = mensagem.IndexOf(" (Parameter", StringComparison.Ordinal);
-            return indiceParametro >= 0 ? mensagem[..indiceParametro] : mensagem;
         }
     }
 }

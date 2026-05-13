@@ -1,6 +1,7 @@
 using Biblioteca.Domain.Entities;
 using Biblioteca.Web.Constants;
 using Biblioteca.Web.Data;
+using Biblioteca.Web.Helpers;
 using Biblioteca.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -70,6 +71,7 @@ namespace Biblioteca.Web.Controllers
                     : "-";
 
                 var totalPages = (int)Math.Ceiling(totalLivros / (double)pageSize);
+
                 if (totalPages == 0)
                     totalPages = 1;
 
@@ -314,38 +316,38 @@ namespace Biblioteca.Web.Controllers
         /// </summary>
         private void AdicionarErroDeDominio(LivroFormViewModel model, ArgumentException ex)
         {
-            var mensagem = LimparMensagemDeExcecao(ex.Message);
+            var mensagem = ExceptionMessageHelper.LimparMensagemDeExcecao(ex.Message);
 
             switch (ex.ParamName)
             {
                 case "titulo":
                     ModelState.AddModelError(nameof(model.Titulo), mensagem);
                     break;
+
                 case "autor":
                     ModelState.AddModelError(nameof(model.Autor), mensagem);
                     break;
+
                 case "editora":
                     ModelState.AddModelError(nameof(model.Editora), mensagem);
                     break;
+
                 case "edicao":
                     ModelState.AddModelError(nameof(model.Edicao), mensagem);
                     break;
+
                 case "dataPublicacao":
                     ModelState.AddModelError(nameof(model.DataPublicacao), mensagem);
                     break;
+
                 case "numeroPaginas":
                     ModelState.AddModelError(nameof(model.NumeroPaginas), mensagem);
                     break;
+
                 default:
                     ModelState.AddModelError(string.Empty, Messages.ErroValidacao);
                     break;
             }
-        }
-
-        private static string LimparMensagemDeExcecao(string mensagem)
-        {
-            var indiceParametro = mensagem.IndexOf(" (Parameter", StringComparison.Ordinal);
-            return indiceParametro >= 0 ? mensagem[..indiceParametro] : mensagem;
         }
     }
 }

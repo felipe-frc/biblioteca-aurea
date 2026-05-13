@@ -1,5 +1,6 @@
 using Biblioteca.Web.Constants;
 using Biblioteca.Web.Data;
+using Biblioteca.Web.Helpers;
 using Biblioteca.Web.Services;
 using Biblioteca.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -212,7 +213,7 @@ namespace Biblioteca.Web.Controllers
             catch (InvalidOperationException ex)
             {
                 _logger.LogWarning(ex, "Operação inválida ao devolver o empréstimo de ID {EmprestimoId}.", id);
-                TempData["Erro"] = LimparMensagemDeExcecao(ex.Message);
+                TempData["Erro"] = ExceptionMessageHelper.LimparMensagemDeExcecao(ex.Message);
             }
             catch (Exception ex)
             {
@@ -287,7 +288,7 @@ namespace Biblioteca.Web.Controllers
         /// </summary>
         private void AdicionarErroOperacional(EmprestimoFormViewModel model, InvalidOperationException ex)
         {
-            var mensagem = LimparMensagemDeExcecao(ex.Message);
+            var mensagem = ExceptionMessageHelper.LimparMensagemDeExcecao(ex.Message);
 
             if (mensagem == Messages.ErroUsuarioPossuiEmprestimoAtrasado ||
                 mensagem == Messages.ErroUsuarioComEmprestimoAtivo ||
@@ -305,15 +306,6 @@ namespace Biblioteca.Web.Controllers
             }
 
             ModelState.AddModelError(string.Empty, mensagem);
-        }
-
-        /// <summary>
-        /// Remove sufixos técnicos de exceções antes de exibir mensagens gerais na interface.
-        /// </summary>
-        private static string LimparMensagemDeExcecao(string mensagem)
-        {
-            var indiceParametro = mensagem.IndexOf(" (Parameter", StringComparison.Ordinal);
-            return indiceParametro >= 0 ? mensagem[..indiceParametro] : mensagem;
         }
     }
 }
