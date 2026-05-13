@@ -44,25 +44,6 @@ namespace Biblioteca.Domain.Entities
             Status = StatusEmprestimo.Ativo;
         }
 
-        public Emprestimo(int id, Livro livro, Usuario usuario, DateTime dataPrevistaDevolucao)
-        {
-            if (id <= 0)
-                throw new ArgumentOutOfRangeException(nameof(id), "Id deve ser maior que zero.");
-
-            ValidarDados(livro, usuario, dataPrevistaDevolucao);
-
-            livro.MarcarComoEmprestado();
-
-            Id = id;
-            Livro = livro;
-            Usuario = usuario;
-            LivroId = livro.Id;
-            UsuarioId = usuario.Id;
-            DataEmprestimo = DateTime.Now;
-            DataPrevistaDevolucao = dataPrevistaDevolucao.Date;
-            Status = StatusEmprestimo.Ativo;
-        }
-
         public void Devolver()
         {
             if (DataDevolucao is not null)

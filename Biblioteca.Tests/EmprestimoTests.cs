@@ -17,9 +17,8 @@ public class EmprestimoTests
         var usuario = CriarUsuario();
         var dataPrevista = DateTime.Today.AddDays(7);
 
-        var emprestimo = new Emprestimo(1, livro, usuario, dataPrevista);
+        var emprestimo = new Emprestimo(livro, usuario, dataPrevista);
 
-        Assert.Equal(1, emprestimo.Id);
         Assert.Equal(livro, emprestimo.Livro);
         Assert.Equal(usuario, emprestimo.Usuario);
         Assert.Equal(dataPrevista.Date, emprestimo.DataPrevistaDevolucao);
@@ -60,7 +59,7 @@ public class EmprestimoTests
         var usuario = CriarUsuario();
 
         Assert.Throws<ArgumentException>(() =>
-            new Emprestimo(1, livro, usuario, DateTime.Today.AddDays(-1)));
+            new Emprestimo(livro, usuario, DateTime.Today.AddDays(-1)));
     }
 
     [Fact]
@@ -70,7 +69,7 @@ public class EmprestimoTests
         var usuario = CriarUsuario();
 
         Assert.Throws<ArgumentException>(() =>
-            new Emprestimo(1, livro, usuario, DateTime.Today.AddDays(366)));
+            new Emprestimo(livro, usuario, DateTime.Today.AddDays(366)));
     }
 
     [Fact]
@@ -122,7 +121,7 @@ public class EmprestimoTests
     {
         var livro = CriarLivro();
         var usuario = CriarUsuario();
-        var emprestimo = new Emprestimo(1, livro, usuario, DateTime.Today.AddDays(7));
+        var emprestimo = new Emprestimo(livro, usuario, DateTime.Today.AddDays(7));
 
         emprestimo.Devolver();
 
@@ -135,7 +134,7 @@ public class EmprestimoTests
     {
         var livro = CriarLivro();
         var usuario = CriarUsuario();
-        var emprestimo = new Emprestimo(1, livro, usuario, DateTime.Today.AddDays(7));
+        var emprestimo = new Emprestimo(livro, usuario, DateTime.Today.AddDays(7));
 
         emprestimo.Devolver();
 
@@ -147,7 +146,7 @@ public class EmprestimoTests
     {
         var livro = CriarLivro();
         var usuario = CriarUsuario();
-        var emprestimo = new Emprestimo(1, livro, usuario, DateTime.Today.AddDays(7));
+        var emprestimo = new Emprestimo(livro, usuario, DateTime.Today.AddDays(7));
 
         emprestimo.Devolver();
 
@@ -163,7 +162,7 @@ public class EmprestimoTests
     {
         var livro = CriarLivro();
         var usuario = CriarUsuario();
-        var emprestimo = new Emprestimo(1, livro, usuario, DateTime.Today.AddDays(5));
+        var emprestimo = new Emprestimo(livro, usuario, DateTime.Today.AddDays(5));
 
         emprestimo.AtualizarStatus(DateTime.Today);
 
@@ -175,7 +174,7 @@ public class EmprestimoTests
     {
         var livro = CriarLivro();
         var usuario = CriarUsuario();
-        var emprestimo = new Emprestimo(1, livro, usuario, DateTime.Today);
+        var emprestimo = new Emprestimo(livro, usuario, DateTime.Today);
 
         emprestimo.AtualizarStatus(DateTime.Today.AddDays(1));
 
@@ -187,7 +186,7 @@ public class EmprestimoTests
     {
         var livro = CriarLivro();
         var usuario = CriarUsuario();
-        var emprestimo = new Emprestimo(1, livro, usuario, DateTime.Today.AddDays(7));
+        var emprestimo = new Emprestimo(livro, usuario, DateTime.Today.AddDays(7));
 
         emprestimo.Devolver();
         emprestimo.AtualizarStatus(DateTime.Today.AddDays(30));
@@ -200,7 +199,7 @@ public class EmprestimoTests
     {
         var livro = CriarLivro();
         var usuario = CriarUsuario();
-        var emprestimo = new Emprestimo(1, livro, usuario, DateTime.Today.AddDays(5));
+        var emprestimo = new Emprestimo(livro, usuario, DateTime.Today.AddDays(5));
 
         var resultado = emprestimo.EstaAtrasado(DateTime.Today);
 
@@ -212,7 +211,7 @@ public class EmprestimoTests
     {
         var livro = CriarLivro();
         var usuario = CriarUsuario();
-        var emprestimo = new Emprestimo(1, livro, usuario, DateTime.Today);
+        var emprestimo = new Emprestimo(livro, usuario, DateTime.Today);
 
         var resultado = emprestimo.EstaAtrasado(DateTime.Today.AddDays(1));
 
@@ -224,7 +223,7 @@ public class EmprestimoTests
     {
         var livro = CriarLivro();
         var usuario = CriarUsuario();
-        var emprestimo = new Emprestimo(1, livro, usuario, DateTime.Today.AddDays(3));
+        var emprestimo = new Emprestimo(livro, usuario, DateTime.Today.AddDays(3));
 
         var resultado = emprestimo.EstaAtrasado(DateTime.Today.AddDays(3));
 
