@@ -1,5 +1,7 @@
 [![CI (.NET)](https://github.com/felipe-frc/biblioteca-aurea/actions/workflows/main_biblioteca-aurea.yml/badge.svg)](https://github.com/felipe-frc/biblioteca-aurea/actions)
 
+[![codecov](https://codecov.io/gh/felipe-frc/biblioteca-aurea/branch/main/graph/badge.svg)](https://codecov.io/gh/felipe-frc/biblioteca-aurea)
+
 # 📚 Biblioteca Áurea
 
 Sistema web de gerenciamento de biblioteca desenvolvido com **ASP.NET Core MVC**, **Entity Framework Core** e **Azure SQL Server**, com foco em arquitetura em camadas, regras de negócio, testes automatizados, deploy em nuvem e boas práticas de Engenharia de Software.
