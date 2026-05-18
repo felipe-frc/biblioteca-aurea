@@ -57,7 +57,7 @@ namespace Biblioteca.Web.Controllers
                 _ => query
             };
 
-            var totalLivros = query.Count();
+           var totalLivros = query.Count();
             var totalDisponiveis = query.Count(l => l.Disponivel);
             var totalEmprestados = totalLivros - totalDisponiveis;
 

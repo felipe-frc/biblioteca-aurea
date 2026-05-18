@@ -1,5 +1,4 @@
-﻿
-/* ============================================
+﻿/* ============================================
    1. VARIÁVEIS E TEMA
    ============================================ */
 
@@ -119,7 +118,12 @@ body {
     padding-top: 90px;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
     font-family: var(--font-family-serif);
     margin-top: 0;
 }
@@ -235,16 +239,27 @@ button {
     }
 
 .site-navbar-toggler {
-    border: 1px solid rgba(24, 61, 96, 0.15);
-    border-radius: var(--border-radius-sm);
-    padding: 6px 10px;
-    background: transparent;
+    width: 52px;
+    height: 46px;
+    border: 1.5px solid rgba(24, 61, 96, 0.35);
+    border-radius: 12px;
+    padding: 0;
+    background: rgba(255, 255, 255, 0.90);
     cursor: pointer;
-    transition: box-shadow var(--transition-normal);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background var(--transition-normal), border-color var(--transition-normal), box-shadow var(--transition-normal), transform var(--transition-normal);
 }
 
+    .site-navbar-toggler:hover {
+        background: var(--neutral-white);
+        border-color: rgba(24, 61, 96, 0.65);
+        transform: translateY(-1px);
+    }
+
     .site-navbar-toggler:focus {
-        box-shadow: 0 0 0 0.2rem rgba(24, 61, 96, 0.12);
+        box-shadow: 0 0 0 0.2rem rgba(24, 61, 96, 0.18);
         outline: none;
     }
 
@@ -779,18 +794,63 @@ button {
     }
 
 .inner-navbar-toggler {
-    border: 1px solid rgba(24, 61, 96, 0.12);
-    border-radius: var(--border-radius-sm);
-    padding: 6px 10px;
-    background: transparent;
+    width: 52px;
+    height: 46px;
+    border: 1.5px solid rgba(24, 61, 96, 0.35);
+    border-radius: 12px;
+    padding: 0;
+    background: rgba(255, 255, 255, 0.90);
     cursor: pointer;
-    transition: box-shadow var(--transition-normal);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background var(--transition-normal), border-color var(--transition-normal), box-shadow var(--transition-normal), transform var(--transition-normal);
 }
 
+    .inner-navbar-toggler:hover {
+        background: var(--neutral-white);
+        border-color: rgba(24, 61, 96, 0.65);
+        transform: translateY(-1px);
+    }
+
     .inner-navbar-toggler:focus {
-        box-shadow: 0 0 0 0.2rem rgba(24, 61, 96, 0.10);
+        box-shadow: 0 0 0 0.2rem rgba(24, 61, 96, 0.18);
         outline: none;
     }
+
+    /* Ícone hambúrguer azul - Home e páginas internas */
+    .site-navbar-toggler .navbar-toggler-icon,
+    .inner-navbar-toggler .navbar-toggler-icon {
+        width: 30px;
+        height: 22px;
+        background-image: none !important;
+        position: relative;
+        display: inline-block;
+    }
+
+        .site-navbar-toggler .navbar-toggler-icon::before,
+        .site-navbar-toggler .navbar-toggler-icon::after,
+        .inner-navbar-toggler .navbar-toggler-icon::before,
+        .inner-navbar-toggler .navbar-toggler-icon::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            width: 30px;
+            height: 4px;
+            background-color: var(--primary-dark);
+            border-radius: 999px;
+        }
+
+        .site-navbar-toggler .navbar-toggler-icon::before,
+        .inner-navbar-toggler .navbar-toggler-icon::before {
+            top: 0;
+            box-shadow: 0 9px 0 var(--primary-dark);
+        }
+
+        .site-navbar-toggler .navbar-toggler-icon::after,
+        .inner-navbar-toggler .navbar-toggler-icon::after {
+            top: 18px;
+        }
 
 /* ============================================
    11. MAIN - PÁGINAS INTERNAS
@@ -1490,15 +1550,38 @@ button {
         width: 102px;
     }
 
-    .site-nav-list {
-        gap: 0;
-        padding-top: 14px;
+    .site-navbar .navbar-collapse,
+    .inner-navbar .navbar-collapse {
+        margin-top: 12px;
+        padding: 14px;
+        background: rgba(245, 243, 238, 0.98);
+        border: 1px solid rgba(24, 61, 96, 0.12);
+        border-radius: var(--border-radius-md);
+        box-shadow: var(--shadow-md);
     }
 
-    .site-nav-link {
-        padding-left: 0 !important;
-        padding-right: 0 !important;
+    .site-nav-list,
+    .inner-nav-list {
+        gap: 4px;
+        align-items: stretch;
+        padding-top: 0;
     }
+
+    .site-nav-link,
+    .inner-nav-link {
+        width: 100%;
+        padding: 10px 12px !important;
+        border-radius: var(--border-radius-sm);
+    }
+
+        .site-nav-link:hover,
+        .site-nav-link:focus,
+        .site-nav-link.active,
+        .inner-nav-link:hover,
+        .inner-nav-link:focus,
+        .inner-nav-link.active {
+            background: rgba(24, 61, 96, 0.06);
+        }
 
     .hero-section {
         min-height: auto;
@@ -1530,17 +1613,6 @@ button {
 
     .inner-logo {
         width: 112px;
-    }
-
-    .inner-nav-list {
-        gap: 0;
-        padding-top: 12px;
-        align-items: flex-start;
-    }
-
-    .inner-nav-link {
-        padding-left: 0 !important;
-        padding-right: 0 !important;
     }
 
     .crud-title {
@@ -1586,6 +1658,36 @@ button {
     .site-logo {
         width: 94px;
     }
+
+    .site-navbar-toggler,
+    .inner-navbar-toggler {
+        width: 50px;
+        height: 44px;
+    }
+
+        .site-navbar-toggler .navbar-toggler-icon,
+        .inner-navbar-toggler .navbar-toggler-icon {
+            width: 28px;
+            height: 21px;
+        }
+
+            .site-navbar-toggler .navbar-toggler-icon::before,
+            .site-navbar-toggler .navbar-toggler-icon::after,
+            .inner-navbar-toggler .navbar-toggler-icon::before,
+            .inner-navbar-toggler .navbar-toggler-icon::after {
+                width: 28px;
+                height: 4px;
+            }
+
+            .site-navbar-toggler .navbar-toggler-icon::before,
+            .inner-navbar-toggler .navbar-toggler-icon::before {
+                box-shadow: 0 8.5px 0 var(--primary-dark);
+            }
+
+            .site-navbar-toggler .navbar-toggler-icon::after,
+            .inner-navbar-toggler .navbar-toggler-icon::after {
+                top: 17px;
+            }
 
     .hero-content {
         padding: 72px 0 78px;
@@ -1676,9 +1778,6 @@ button {
 
     .crud-form-actions {
         margin-top: 24px;
-    }
-
-    .crud-form-actions {
         flex-direction: column;
         align-items: stretch;
     }
@@ -1819,9 +1918,40 @@ button {
         width: 90px;
     }
 
+    .site-navbar-toggler,
+    .inner-navbar-toggler {
+        width: 46px;
+        height: 42px;
+        border-radius: 10px;
+    }
+
+        .site-navbar-toggler .navbar-toggler-icon,
+        .inner-navbar-toggler .navbar-toggler-icon {
+            width: 26px;
+            height: 20px;
+        }
+
+            .site-navbar-toggler .navbar-toggler-icon::before,
+            .site-navbar-toggler .navbar-toggler-icon::after,
+            .inner-navbar-toggler .navbar-toggler-icon::before,
+            .inner-navbar-toggler .navbar-toggler-icon::after {
+                width: 26px;
+                height: 3.5px;
+            }
+
+            .site-navbar-toggler .navbar-toggler-icon::before,
+            .inner-navbar-toggler .navbar-toggler-icon::before {
+                box-shadow: 0 8px 0 var(--primary-dark);
+            }
+
+            .site-navbar-toggler .navbar-toggler-icon::after,
+            .inner-navbar-toggler .navbar-toggler-icon::after {
+                top: 16px;
+            }
+
     .site-nav-link {
         font-size: 0.9rem;
-        padding: 8px 6px !important;
+        padding: 8px 10px !important;
     }
 
     .crud-title {
