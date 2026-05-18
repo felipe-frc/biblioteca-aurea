@@ -41,6 +41,12 @@ jobs:
           --collect:"XPlat Code Coverage"
           --results-directory ./TestResults
 
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: ./TestResults/**/coverage.cobertura.xml
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v6
         with:
