@@ -1,6 +1,6 @@
 [![CI (.NET)](https://github.com/felipe-frc/biblioteca-aurea/actions/workflows/main_biblioteca-aurea.yml/badge.svg)](https://github.com/felipe-frc/biblioteca-aurea/actions)
 
-[![codecov](https://codecov.io/gh/felipe-frc/biblioteca-aurea/branch/main/graph/badge.svg)](https://codecov.io/gh/felipe-frc/biblioteca-aurea)
+[![codecov](https://codecov.io/github/felipe-frc/biblioteca-aurea/graph/badge.svg?token=2L8U69ZZ33)](https://codecov.io/github/felipe-frc/biblioteca-aurea)
 
 # 📚 Biblioteca Áurea
 
