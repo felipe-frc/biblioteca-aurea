@@ -29,7 +29,7 @@ Este projeto foi desenvolvido com o objetivo de praticar e demonstrar conhecimen
 - Desenvolvimento web com ASP.NET Core MVC;
 - Persistência de dados com Entity Framework Core e Azure SQL Server;
 - Autenticação por cookie e controle de acesso com área administrativa protegida;
-- Configuração segura de credenciais com User Secrets e variáveis de ambiente no Azure;
+- Configuração segura de credenciais com User Secrets, variáveis de ambiente no Azure e arquivo de exemplo sem dados sensíveis;
 - Organização em camadas e separação de responsabilidades;
 - Criação de regras de negócio para um domínio real;
 - Testes automatizados com xUnit;
@@ -46,6 +46,7 @@ Este projeto foi desenvolvido com o objetivo de praticar e demonstrar conhecimen
 - Regras de negócio encapsuladas nas entidades de domínio;
 - Catálogo público acessível sem autenticação;
 - Área administrativa protegida por autenticação via cookies;
+- Arquivo `appsettings.example.json` para facilitar a configuração local sem expor credenciais reais;
 - Controle de empréstimos com os status `Ativo`, `Atrasado`, `Devolvido` e `DevolvidoComAtraso`;
 - Busca e filtros no catálogo público;
 - Validações de domínio para livros, usuários e empréstimos;
@@ -122,6 +123,7 @@ Este projeto foi desenvolvido com o objetivo de praticar e demonstrar conhecimen
 | Deploy                    | Azure App Service                          |
 | Autenticação              | Cookie-based Authentication                |
 | Segurança de configuração | User Secrets + Variáveis de ambiente Azure |
+| Template de configuração  | appsettings.example.json                   |
 | Testes                    | xUnit                                      |
 | Cobertura de Testes       | Coverlet + Codecov                         |
 | CI/CD                     | GitHub Actions                             |
@@ -152,6 +154,8 @@ biblioteca-aurea/
 │   ├── Constants/            # Mensagens centralizadas
 │   ├── Helpers/              # Helpers de tratamento e padronização
 │   ├── wwwroot/              # Arquivos estáticos
+│   ├── appsettings.json      # Configuração base da aplicação
+│   ├── appsettings.example.json # Modelo de configuração sem credenciais reais
 │   └── Program.cs            # Configuração e injeção de dependência
 │
 ├── Biblioteca.Tests/         # Testes automatizados com xUnit
@@ -357,7 +361,25 @@ dotnet restore
 
 ---
 
-### 3. Configure a connection string com User Secrets
+### 3. Consulte o template de configuração
+
+O projeto possui um arquivo de exemplo com os campos necessários para configuração local:
+
+```txt
+Biblioteca.Web/appsettings.example.json
+```
+
+Esse arquivo serve apenas como referência e **não contém credenciais reais**. Ele indica quais chaves precisam existir para a aplicação funcionar localmente ou em produção, incluindo:
+
+```txt
+ConnectionStrings__DefaultConnection
+AdminCredentials__Username
+AdminCredentials__Password
+```
+
+---
+
+### 4. Configure a connection string com User Secrets
 
 Por segurança, a connection string real não fica salva no `appsettings.json`.
 
@@ -369,9 +391,9 @@ dotnet user-secrets set "ConnectionStrings:DefaultConnection" "SUA_CONNECTION_ST
 
 ---
 
-### 4. Configure as credenciais administrativas com User Secrets
+### 5. Configure as credenciais administrativas com User Secrets
 
-As credenciais do administrador também não ficam no repositório.
+As credenciais do administrador também não ficam no repositório. Os nomes das chaves podem ser conferidos no arquivo `appsettings.example.json`.
 
 ```bash
 dotnet user-secrets set "AdminCredentials:Username" "admin"
@@ -387,7 +409,7 @@ AdminCredentials__Password
 
 ---
 
-### 5. Aplique as migrations
+### 6. Aplique as migrations
 
 ```bash
 dotnet ef database update --project Biblioteca.Web --startup-project Biblioteca.Web
@@ -395,7 +417,7 @@ dotnet ef database update --project Biblioteca.Web --startup-project Biblioteca.
 
 ---
 
-### 6. Execute a aplicação
+### 7. Execute a aplicação
 
 ```bash
 dotnet run --project Biblioteca.Web
@@ -405,7 +427,7 @@ Acesse em: `http://localhost:5026`
 
 ---
 
-### 7. Execute os testes
+### 8. Execute os testes
 
 ```bash
 dotnet test
@@ -413,7 +435,7 @@ dotnet test
 
 ---
 
-### 8. Execute os testes com cobertura
+### 9. Execute os testes com cobertura
 
 ```bash
 dotnet test Biblioteca.sln --collect:"XPlat Code Coverage" --results-directory ./TestResults
@@ -474,9 +496,17 @@ A separação entre `Atrasado` e `DevolvidoComAtraso` evita ambiguidade entre em
 
 O projeto utiliza EF Core com Azure SQL Server, aproximando a aplicação de um cenário real de produção. As migrations foram configuradas com tipos adequados ao SQL Server: `nvarchar`, `datetime2`, `int` e `bit`. Índices foram adicionados nas colunas mais consultadas (`Status`, `DataPrevistaDevolucao`, `LivroId`, `UsuarioId`).
 
-### User Secrets e variáveis de ambiente no Azure
+### User Secrets, variáveis de ambiente e template de configuração
 
 Nenhum dado sensível — connection string ou credenciais administrativas — é armazenado no repositório. Em ambiente local, o projeto utiliza User Secrets. No Azure App Service, as configurações são injetadas via variáveis de ambiente, seguindo a prática padrão de segurança em produção.
+
+O arquivo `Biblioteca.Web/appsettings.example.json` foi adicionado como template de configuração. Ele documenta os campos necessários para executar o projeto sem expor valores reais, facilitando o onboarding de outros desenvolvedores, avaliadores técnicos e recrutadores.
+
+### Projeto Console
+
+A pasta `Biblioteca.Console` representa uma versão inicial e exploratória do sistema, utilizada como etapa de evolução antes da implementação web com ASP.NET Core MVC.
+
+Ela permanece no repositório como registro histórico do desenvolvimento do projeto e demonstra a transição de uma aplicação console em memória para uma aplicação web em camadas, com persistência, autenticação, testes automatizados, CI/CD, cobertura de testes e deploy em nuvem.
 
 ### CI/CD com GitHub Actions
 
@@ -491,6 +521,12 @@ O Bootstrap foi utilizado para acelerar a construção da interface, mantendo o 
 ---
 
 ## 🧾 Releases
+
+### [v3.6.1 — Template de configuração e documentação do projeto console](https://github.com/felipe-frc/biblioteca-aurea/releases/tag/v3.6.1)
+
+Adição do arquivo `appsettings.example.json` como template de configuração local, documentando os campos necessários para connection string e credenciais administrativas sem expor valores reais.
+
+Atualização do README para explicar o uso do template de configuração, reforçar o uso de User Secrets e variáveis de ambiente no Azure, além de documentar a finalidade da pasta `Biblioteca.Console` como registro histórico da evolução do projeto — da versão console em memória para a aplicação web em camadas com persistência, autenticação, testes, cobertura, CI/CD e deploy em nuvem.
 
 ### [v3.6.0 — Cobertura de testes, Codecov e qualidade da suíte automatizada](https://github.com/felipe-frc/biblioteca-aurea/releases/tag/v3.6.0)
 
@@ -557,7 +593,7 @@ Primeira versão com dados em memória, menu no console, regras de empréstimo, 
 - Cadastro de categorias de livros;
 - API REST para consumo por aplicações externas;
 - Melhorias de responsividade, acessibilidade e UX;
-- Evolução gradual da cobertura de testes acima de 50%;
+- Evolução gradual da cobertura de testes acima de 60%;
 - Domínio personalizado.
 
 ---
