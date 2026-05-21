@@ -1,5 +1,6 @@
 using Biblioteca.Domain.Entities;
 using Biblioteca.Web.Data;
+using Biblioteca.Web.Data.UnitOfWork;
 using Biblioteca.Web.Services;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
@@ -36,7 +37,7 @@ public class LivrosServiceIntegrationTests
         context.Usuarios.Add(usuario);
         context.SaveChanges();
 
-        var service = new EmprestimoAppService(context);
+        var service = new EmprestimoAppService(new UnitOfWork(context));
         service.Realizar(livro.Id, usuario.Id, DateTime.Today.AddDays(7));
 
         var temEmprestimo = context.Emprestimos.Any(e => e.LivroId == livro.Id);
@@ -70,7 +71,7 @@ public class LivrosServiceIntegrationTests
         context.Usuarios.Add(usuario);
         context.SaveChanges();
 
-        var service = new EmprestimoAppService(context);
+        var service = new EmprestimoAppService(new UnitOfWork(context));
         var emprestimo = service.Realizar(livro.Id, usuario.Id, DateTime.Today.AddDays(7));
         service.Devolver(emprestimo.Id);
 
@@ -134,7 +135,7 @@ public class LivrosServiceIntegrationTests
         context.Usuarios.Add(usuario);
         context.SaveChanges();
 
-        var service = new EmprestimoAppService(context);
+        var service = new EmprestimoAppService(new UnitOfWork(context));
         service.Realizar(livroEmprestado.Id, usuario.Id, DateTime.Today.AddDays(7));
 
         var disponiveis = context.Livros.Where(l => l.Disponivel).ToList();
@@ -156,7 +157,7 @@ public class LivrosServiceIntegrationTests
         context.Usuarios.Add(usuario);
         context.SaveChanges();
 
-        var service = new EmprestimoAppService(context);
+        var service = new EmprestimoAppService(new UnitOfWork(context));
         var emprestimo = service.Realizar(livro.Id, usuario.Id, DateTime.Today.AddDays(7));
 
         var disponiveisAntes = context.Livros.Where(l => l.Disponivel).ToList();

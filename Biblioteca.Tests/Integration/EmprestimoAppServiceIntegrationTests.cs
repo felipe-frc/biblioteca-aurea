@@ -2,6 +2,7 @@ using Biblioteca.Domain.Entities;
 using Biblioteca.Domain.Enums;
 using Biblioteca.Web.Constants;
 using Biblioteca.Web.Data;
+using Biblioteca.Web.Data.UnitOfWork;
 using Biblioteca.Web.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
@@ -50,7 +51,7 @@ public class EmprestimoAppServiceIntegrationTests
         context.Usuarios.Add(usuario);
         context.SaveChanges();
 
-        var service = new EmprestimoAppService(context);
+        var service = new EmprestimoAppService(new UnitOfWork(context));
 
         var emprestimo = service.Realizar(livro.Id, usuario.Id, DateTime.Today.AddDays(7));
 
@@ -72,7 +73,7 @@ public class EmprestimoAppServiceIntegrationTests
         context.Usuarios.Add(usuario);
         context.SaveChanges();
 
-        var service = new EmprestimoAppService(context);
+        var service = new EmprestimoAppService(new UnitOfWork(context));
 
         var emprestimo = service.Realizar(livro.Id, usuario.Id, DateTime.Today.AddDays(14));
 
@@ -94,7 +95,7 @@ public class EmprestimoAppServiceIntegrationTests
         context.Usuarios.Add(usuario2);
         context.SaveChanges();
 
-        var service = new EmprestimoAppService(context);
+        var service = new EmprestimoAppService(new UnitOfWork(context));
 
         service.Realizar(livro.Id, usuario1.Id, DateTime.Today.AddDays(7));
 
@@ -114,7 +115,7 @@ public class EmprestimoAppServiceIntegrationTests
         context.Usuarios.Add(usuario);
         context.SaveChanges();
 
-        var service = new EmprestimoAppService(context);
+        var service = new EmprestimoAppService(new UnitOfWork(context));
 
         var exception = Assert.Throws<InvalidOperationException>(() =>
             service.Realizar(999, usuario.Id, DateTime.Today.AddDays(7)));
@@ -132,7 +133,7 @@ public class EmprestimoAppServiceIntegrationTests
         context.Livros.Add(livro);
         context.SaveChanges();
 
-        var service = new EmprestimoAppService(context);
+        var service = new EmprestimoAppService(new UnitOfWork(context));
 
         var exception = Assert.Throws<InvalidOperationException>(() =>
             service.Realizar(livro.Id, 999, DateTime.Today.AddDays(7)));
@@ -152,7 +153,7 @@ public class EmprestimoAppServiceIntegrationTests
         context.Usuarios.Add(usuario);
         context.SaveChanges();
 
-        var service = new EmprestimoAppService(context);
+        var service = new EmprestimoAppService(new UnitOfWork(context));
 
         var emprestimo = service.Realizar(livro.Id, usuario.Id, DateTime.Today.AddDays(7));
 
@@ -180,7 +181,7 @@ public class EmprestimoAppServiceIntegrationTests
         context.Usuarios.Add(usuario);
         context.SaveChanges();
 
-        var service = new EmprestimoAppService(context);
+        var service = new EmprestimoAppService(new UnitOfWork(context));
 
         var emprestimoAtrasado = service.Realizar(
             livroAtrasado.Id,
@@ -217,7 +218,7 @@ public class EmprestimoAppServiceIntegrationTests
         context.Usuarios.Add(usuario);
         context.SaveChanges();
 
-        var service = new EmprestimoAppService(context);
+        var service = new EmprestimoAppService(new UnitOfWork(context));
 
         var emprestimo = service.Realizar(livro.Id, usuario.Id, DateTime.Today.AddDays(1));
 
@@ -246,7 +247,7 @@ public class EmprestimoAppServiceIntegrationTests
         context.Usuarios.Add(usuario2);
         context.SaveChanges();
 
-        var service = new EmprestimoAppService(context);
+        var service = new EmprestimoAppService(new UnitOfWork(context));
 
         var primeiroEmprestimo = service.Realizar(livro.Id, usuario1.Id, DateTime.Today.AddDays(7));
 
@@ -264,7 +265,7 @@ public class EmprestimoAppServiceIntegrationTests
     {
         using var context = CriarContexto();
 
-        var service = new EmprestimoAppService(context);
+        var service = new EmprestimoAppService(new UnitOfWork(context));
 
         var exception = Assert.Throws<InvalidOperationException>(() =>
             service.Devolver(999));
@@ -284,7 +285,7 @@ public class EmprestimoAppServiceIntegrationTests
         context.Usuarios.Add(usuario);
         context.SaveChanges();
 
-        var service = new EmprestimoAppService(context);
+        var service = new EmprestimoAppService(new UnitOfWork(context));
 
         var emprestimo = service.Realizar(livro.Id, usuario.Id, DateTime.Today.AddDays(7));
         service.Devolver(emprestimo.Id);
@@ -311,7 +312,7 @@ public class EmprestimoAppServiceIntegrationTests
         context.Usuarios.Add(usuario2);
         context.SaveChanges();
 
-        var service = new EmprestimoAppService(context);
+        var service = new EmprestimoAppService(new UnitOfWork(context));
 
         var emp1 = service.Realizar(livro.Id, usuario1.Id, DateTime.Today.AddDays(7));
 
