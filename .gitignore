@@ -21,6 +21,9 @@ obj/
 # Logs
 # =========================
 *.log
+*.clef
+[Bb]iblioteca.Web/Logs/
+**/Logs/
 
 # =========================
 # Database (SQLite)
@@ -28,6 +31,7 @@ obj/
 *.db
 *.db-shm
 *.db-wal
+*.db.broken-migration
 
 # =========================
 # OS files
@@ -62,7 +66,3 @@ Generated/
 # =========================
 .env
 .env.*
-# Logs locais da aplicação
-[Bb]iblioteca.Web/Logs/
-**/Logs/
-*.clef

@@ -4,6 +4,7 @@ using Biblioteca.Web.Data.UnitOfWork;
 using Biblioteca.Web.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
@@ -35,22 +36,38 @@ try
 
     builder.Services.AddAuthorization();
 
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+    if (string.IsNullOrWhiteSpace(connectionString))
+    {
+        throw new InvalidOperationException(
+            "A connection string 'DefaultConnection' não foi encontrada. Configure em appsettings.json, appsettings.Development.json ou User Secrets.");
+    }
+
+    var usarSqlite =
+        connectionString.Contains(".db", StringComparison.OrdinalIgnoreCase) ||
+        connectionString.StartsWith("Data Source=", StringComparison.OrdinalIgnoreCase);
+
     builder.Services.AddDbContext<BibliotecaDbContext>(options =>
     {
-        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+        if (usarSqlite)
+        {
+            options.UseSqlite(connectionString);
+        }
+        else
+        {
+            options.UseSqlServer(
+                connectionString,
+                sqlOptions =>
+                {
+                    sqlOptions.EnableRetryOnFailure(
+                        maxRetryCount: 5,
+                        maxRetryDelay: TimeSpan.FromSeconds(10),
+                        errorNumbersToAdd: null);
 
-        options.UseSqlServer(
-            connectionString,
-            sqlOptions =>
-            {
-                sqlOptions.EnableRetryOnFailure(
-                    maxRetryCount: 5,
-                    maxRetryDelay: TimeSpan.FromSeconds(10),
-                    errorNumbersToAdd: null
-                );
-
-                sqlOptions.CommandTimeout(60);
-            });
+                    sqlOptions.CommandTimeout(60);
+                });
+        }
     });
 
     builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
@@ -58,6 +75,14 @@ try
     builder.Services.AddScoped<IEmprestimoAppService, EmprestimoAppService>();
 
     var app = builder.Build();
+
+    if (usarSqlite)
+    {
+        using var scope = app.Services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<BibliotecaDbContext>();
+
+        context.Database.EnsureCreated();
+    }
 
     if (!app.Environment.IsDevelopment())
     {
@@ -83,6 +108,10 @@ try
         pattern: "{controller=Home}/{action=Index}/{id?}");
 
     app.Run();
+}
+catch (HostAbortedException)
+{
+    // Ignorado durante comandos do Entity Framework.
 }
 catch (Exception ex)
 {
