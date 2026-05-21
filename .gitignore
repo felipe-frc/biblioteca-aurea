@@ -62,3 +62,7 @@ Generated/
 # =========================
 .env
 .env.*
+# Logs locais da aplicação
+[Bb]iblioteca.Web/Logs/
+**/Logs/
+*.clef
