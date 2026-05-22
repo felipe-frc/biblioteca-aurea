@@ -3,6 +3,7 @@ using Biblioteca.Web.Controllers;
 using Biblioteca.Web.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
@@ -21,9 +22,12 @@ public class CatalogoControllerTests
 
     private static CatalogoController CriarController(BibliotecaDbContext context)
     {
+        var cache = new MemoryCache(new MemoryCacheOptions());
+
         return new CatalogoController(
             context,
-            NullLogger<CatalogoController>.Instance);
+            NullLogger<CatalogoController>.Instance,
+            cache);
     }
 
     private static Livro CriarLivro(

@@ -24,6 +24,8 @@ try
 
     builder.Services.AddControllersWithViews();
 
+    builder.Services.AddMemoryCache();
+
     builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
         .AddCookie(options =>
         {
@@ -111,7 +113,7 @@ try
 }
 catch (HostAbortedException)
 {
-    // Ignorado durante comandos do Entity Framework.
+    
 }
 catch (Exception ex)
 {
