@@ -68,28 +68,34 @@ public class UsuariosControllerTests
         };
     }
 
+    private static UsuariosIndexViewModel ObterIndexViewModel(IActionResult result)
+    {
+        var viewResult = Assert.IsType<ViewResult>(result);
+        return Assert.IsType<UsuariosIndexViewModel>(viewResult.Model);
+    }
+
     // =========================================================
     // Index
     // =========================================================
 
     [Fact]
-    public void Index_SemUsuarios_DeveRetornarListaVaziaComViewBagsPadrao()
+    public void Index_SemUsuarios_DeveRetornarViewModelVazioComValoresPadrao()
     {
         using var context = CriarContexto();
         var controller = CriarController(context);
 
         var result = controller.Index();
 
-        var viewResult = Assert.IsType<ViewResult>(result);
-        var usuarios = Assert.IsAssignableFrom<IEnumerable<Usuario>>(viewResult.Model).ToList();
+        var model = ObterIndexViewModel(result);
 
-        Assert.Empty(usuarios);
-        Assert.Equal(1, controller.ViewBag.CurrentPage);
-        Assert.Equal(1, controller.ViewBag.TotalPages);
-        Assert.False(controller.ViewBag.HasPreviousPage);
-        Assert.False(controller.ViewBag.HasNextPage);
-        Assert.Equal(0, controller.ViewBag.TotalUsuarios);
-        Assert.Equal(0, controller.ViewBag.UsuariosInadimplentes);
+        Assert.Empty(model.Usuarios);
+        Assert.Equal(1, model.CurrentPage);
+        Assert.Equal(1, model.TotalPages);
+        Assert.False(model.HasPreviousPage);
+        Assert.False(model.HasNextPage);
+        Assert.Equal(0, model.TotalUsuarios);
+        Assert.Equal(0, model.UsuariosInadimplentes);
+        Assert.False(model.HasUsuarios);
     }
 
     [Fact]
@@ -108,15 +114,15 @@ public class UsuariosControllerTests
 
         var result = controller.Index();
 
-        var viewResult = Assert.IsType<ViewResult>(result);
-        var usuarios = Assert.IsAssignableFrom<IEnumerable<Usuario>>(viewResult.Model).ToList();
+        var model = ObterIndexViewModel(result);
 
-        Assert.Equal(6, usuarios.Count);
-        Assert.Equal(1, controller.ViewBag.CurrentPage);
-        Assert.Equal(2, controller.ViewBag.TotalPages);
-        Assert.False(controller.ViewBag.HasPreviousPage);
-        Assert.True(controller.ViewBag.HasNextPage);
-        Assert.Equal(8, controller.ViewBag.TotalUsuarios);
+        Assert.Equal(6, model.Usuarios.Count);
+        Assert.Equal(1, model.CurrentPage);
+        Assert.Equal(2, model.TotalPages);
+        Assert.False(model.HasPreviousPage);
+        Assert.True(model.HasNextPage);
+        Assert.Equal(8, model.TotalUsuarios);
+        Assert.True(model.HasUsuarios);
     }
 
     [Fact]
@@ -135,14 +141,13 @@ public class UsuariosControllerTests
 
         var result = controller.Index(page: 99);
 
-        var viewResult = Assert.IsType<ViewResult>(result);
-        var usuarios = Assert.IsAssignableFrom<IEnumerable<Usuario>>(viewResult.Model).ToList();
+        var model = ObterIndexViewModel(result);
 
-        Assert.Single(usuarios);
-        Assert.Equal(3, controller.ViewBag.CurrentPage);
-        Assert.Equal(3, controller.ViewBag.TotalPages);
-        Assert.True(controller.ViewBag.HasPreviousPage);
-        Assert.False(controller.ViewBag.HasNextPage);
+        Assert.Single(model.Usuarios);
+        Assert.Equal(3, model.CurrentPage);
+        Assert.Equal(3, model.TotalPages);
+        Assert.True(model.HasPreviousPage);
+        Assert.False(model.HasNextPage);
     }
 
     [Fact]
@@ -160,12 +165,11 @@ public class UsuariosControllerTests
 
         var result = controller.Index(page: 0);
 
-        var viewResult = Assert.IsType<ViewResult>(result);
-        var usuarios = Assert.IsAssignableFrom<IEnumerable<Usuario>>(viewResult.Model).ToList();
+        var model = ObterIndexViewModel(result);
 
-        Assert.Equal(2, usuarios.Count);
-        Assert.Equal(1, controller.ViewBag.CurrentPage);
-        Assert.False(controller.ViewBag.HasPreviousPage);
+        Assert.Equal(2, model.Usuarios.Count);
+        Assert.Equal(1, model.CurrentPage);
+        Assert.False(model.HasPreviousPage);
     }
 
     [Fact]
@@ -190,11 +194,10 @@ public class UsuariosControllerTests
 
         var result = controller.Index();
 
-        var viewResult = Assert.IsType<ViewResult>(result);
-        var usuarios = Assert.IsAssignableFrom<IEnumerable<Usuario>>(viewResult.Model).ToList();
+        var model = ObterIndexViewModel(result);
 
-        Assert.Single(usuarios);
-        Assert.Equal(1, controller.ViewBag.UsuariosInadimplentes);
+        Assert.Single(model.Usuarios);
+        Assert.Equal(1, model.UsuariosInadimplentes);
     }
 
     [Fact]
@@ -218,9 +221,11 @@ public class UsuariosControllerTests
 
         var controller = CriarController(context);
 
-        _ = controller.Index();
+        var result = controller.Index();
 
-        Assert.Equal(0, controller.ViewBag.UsuariosInadimplentes);
+        var model = ObterIndexViewModel(result);
+
+        Assert.Equal(0, model.UsuariosInadimplentes);
     }
 
     // =========================================================

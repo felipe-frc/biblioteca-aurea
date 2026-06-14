@@ -63,15 +63,16 @@ namespace Biblioteca.Web.Controllers
                 .Take(pageSize)
                 .ToList();
 
-            ViewBag.CurrentPage = page;
-            ViewBag.TotalPages = totalPages;
-            ViewBag.HasPreviousPage = page > 1;
-            ViewBag.HasNextPage = page < totalPages;
+            var model = new UsuariosIndexViewModel
+            {
+                Usuarios = usuarios,
+                CurrentPage = page,
+                TotalPages = totalPages,
+                TotalUsuarios = totalUsuarios,
+                UsuariosInadimplentes = usuariosInadimplentes
+            };
 
-            ViewBag.TotalUsuarios = totalUsuarios;
-            ViewBag.UsuariosInadimplentes = usuariosInadimplentes;
-
-            return View(usuarios);
+            return View(model);
         }
 
         /// <summary>

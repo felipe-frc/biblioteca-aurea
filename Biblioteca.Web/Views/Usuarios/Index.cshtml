@@ -1,16 +1,7 @@
-﻿@model IEnumerable<Biblioteca.Domain.Entities.Usuario>
+﻿@model Biblioteca.Web.ViewModels.UsuariosIndexViewModel
 
 @{
     ViewData["Title"] = "Usuários";
-
-    var usuarios = Model?.ToList() ?? new List<Biblioteca.Domain.Entities.Usuario>();
-    var totalUsuarios = ViewBag.TotalUsuarios is int tu ? tu : usuarios.Count;
-    var usuariosInadimplentes = ViewBag.UsuariosInadimplentes is int ui ? ui : 0;
-
-    var currentPage = ViewBag.CurrentPage is int cp ? cp : 1;
-    var totalPages = ViewBag.TotalPages is int tp ? tp : 1;
-    var hasPreviousPage = ViewBag.HasPreviousPage is bool hp && hp;
-    var hasNextPage = ViewBag.HasNextPage is bool hn && hn;
 }
 
 <section class="crud-page crud-page-usuarios">
@@ -31,7 +22,7 @@
             <a class="crud-primary-btn" asp-controller="Usuarios" asp-action="Create">+ Novo Usuário</a>
         </div>
 
-        @if (!usuarios.Any())
+        @if (!Model.HasUsuarios)
         {
             <div class="crud-empty-state">
                 <h3>Nenhum usuário cadastrado.</h3>
@@ -52,18 +43,18 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var u in usuarios)
+                            @foreach (var usuario in Model.Usuarios)
                             {
                                 <tr>
-                                    <td class="crud-id" data-label="Id">@u.Id</td>
-                                    <td class="crud-strong" data-label="Nome">@u.Nome</td>
-                                    <td data-label="Email">@u.Email</td>
+                                    <td class="crud-id" data-label="Id">@usuario.Id</td>
+                                    <td class="crud-strong" data-label="Nome">@usuario.Nome</td>
+                                    <td data-label="Email">@usuario.Email</td>
                                     <td class="crud-actions-cell" data-label="Ações">
                                         <div class="crud-actions">
                                             <a class="crud-action-btn crud-action-btn-edit"
                                                asp-controller="Usuarios"
                                                asp-action="Edit"
-                                               asp-route-id="@u.Id">
+                                               asp-route-id="@usuario.Id">
                                                 <span class="crud-action-icon" aria-hidden="true">
                                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                         <path d="M12 20h9" />
@@ -76,7 +67,7 @@
                                             <a class="crud-action-btn crud-action-btn-delete"
                                                asp-controller="Usuarios"
                                                asp-action="Delete"
-                                               asp-route-id="@u.Id">
+                                               asp-route-id="@usuario.Id">
                                                 <span class="crud-action-icon" aria-hidden="true">
                                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                                         <path d="M3 6h18" />
@@ -97,33 +88,45 @@
                 </div>
             </div>
 
-            @if (totalPages > 0)
+            @if (Model.TotalPages > 0)
             {
                 <nav class="crud-pagination" aria-label="Paginação">
-                    @if (hasPreviousPage)
+                    @if (Model.HasPreviousPage)
                     {
-                        <a class="crud-pagination-link" asp-action="Index" asp-route-page="@(currentPage - 1)">Anterior</a>
+                        <a class="crud-pagination-link"
+                           asp-action="Index"
+                           asp-route-page="@(Model.CurrentPage - 1)">
+                            Anterior
+                        </a>
                     }
                     else
                     {
                         <span class="crud-pagination-link is-disabled">Anterior</span>
                     }
 
-                    @for (int i = 1; i <= totalPages; i++)
+                    @for (int i = 1; i <= Model.TotalPages; i++)
                     {
-                        if (i == currentPage)
+                        if (i == Model.CurrentPage)
                         {
                             <span class="crud-pagination-link is-active">@i</span>
                         }
                         else
                         {
-                            <a class="crud-pagination-link" asp-action="Index" asp-route-page="@i">@i</a>
+                            <a class="crud-pagination-link"
+                               asp-action="Index"
+                               asp-route-page="@i">
+                                @i
+                            </a>
                         }
                     }
 
-                    @if (hasNextPage)
+                    @if (Model.HasNextPage)
                     {
-                        <a class="crud-pagination-link" asp-action="Index" asp-route-page="@(currentPage + 1)">Próxima</a>
+                        <a class="crud-pagination-link"
+                           asp-action="Index"
+                           asp-route-page="@(Model.CurrentPage + 1)">
+                            Próxima
+                        </a>
                     }
                     else
                     {
@@ -136,14 +139,14 @@
                 <div class="col-lg-6 col-md-6">
                     <div class="crud-stat-card crud-stat-gold">
                         <span class="crud-stat-label">Total de Usuários</span>
-                        <strong class="crud-stat-value">@totalUsuarios</strong>
+                        <strong class="crud-stat-value">@Model.TotalUsuarios</strong>
                     </div>
                 </div>
 
                 <div class="col-lg-6 col-md-6">
                     <div class="crud-stat-card crud-stat-gold">
                         <span class="crud-stat-label">Usuários Inadimplentes</span>
-                        <strong class="crud-stat-value">@usuariosInadimplentes</strong>
+                        <strong class="crud-stat-value">@Model.UsuariosInadimplentes</strong>
                     </div>
                 </div>
             </div>
