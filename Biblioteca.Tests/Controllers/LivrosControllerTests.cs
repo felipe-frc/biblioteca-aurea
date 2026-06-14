@@ -74,32 +74,39 @@ public class LivrosControllerTests
         };
     }
 
+    private static LivrosIndexViewModel ObterIndexViewModel(IActionResult result)
+    {
+        var viewResult = Assert.IsType<ViewResult>(result);
+        return Assert.IsType<LivrosIndexViewModel>(viewResult.Model);
+    }
+
     // =========================================================
     // Index
     // =========================================================
 
     [Fact]
-    public void Index_SemLivros_DeveRetornarListaVaziaComViewBagsPadrao()
+    public void Index_SemLivros_DeveRetornarViewModelVazioComValoresPadrao()
     {
         using var context = CriarContexto();
         var controller = CriarController(context);
 
         var result = controller.Index();
 
-        var viewResult = Assert.IsType<ViewResult>(result);
-        var livros = Assert.IsAssignableFrom<IEnumerable<Livro>>(viewResult.Model).ToList();
+        var model = ObterIndexViewModel(result);
 
-        Assert.Empty(livros);
-        Assert.Equal(1, controller.ViewBag.CurrentPage);
-        Assert.Equal(1, controller.ViewBag.TotalPages);
-        Assert.False(controller.ViewBag.HasPreviousPage);
-        Assert.False(controller.ViewBag.HasNextPage);
-        Assert.Equal(0, controller.ViewBag.TotalLivros);
-        Assert.Equal(0, controller.ViewBag.TotalDisponiveis);
-        Assert.Equal(0, controller.ViewBag.TotalEmprestados);
-        Assert.Equal("-", controller.ViewBag.PublicacaoMaisRecente);
-        Assert.Equal(string.Empty, controller.ViewBag.Busca);
-        Assert.Equal("todos", controller.ViewBag.Disponibilidade);
+        Assert.Empty(model.Livros);
+        Assert.Equal(1, model.CurrentPage);
+        Assert.Equal(1, model.TotalPages);
+        Assert.False(model.HasPreviousPage);
+        Assert.False(model.HasNextPage);
+        Assert.Equal(0, model.TotalLivros);
+        Assert.Equal(0, model.TotalDisponiveis);
+        Assert.Equal(0, model.TotalEmprestados);
+        Assert.Equal("-", model.PublicacaoMaisRecente);
+        Assert.Equal(string.Empty, model.Busca);
+        Assert.Equal("todos", model.Disponibilidade);
+        Assert.False(model.HasFiltros);
+        Assert.False(model.HasLivros);
     }
 
     [Fact]
@@ -118,14 +125,14 @@ public class LivrosControllerTests
 
         var result = controller.Index();
 
-        var viewResult = Assert.IsType<ViewResult>(result);
-        var livros = Assert.IsAssignableFrom<IEnumerable<Livro>>(viewResult.Model).ToList();
+        var model = ObterIndexViewModel(result);
 
-        Assert.Equal(6, livros.Count);
-        Assert.Equal(1, controller.ViewBag.CurrentPage);
-        Assert.Equal(2, controller.ViewBag.TotalPages);
-        Assert.False(controller.ViewBag.HasPreviousPage);
-        Assert.True(controller.ViewBag.HasNextPage);
+        Assert.Equal(6, model.Livros.Count);
+        Assert.Equal(1, model.CurrentPage);
+        Assert.Equal(2, model.TotalPages);
+        Assert.False(model.HasPreviousPage);
+        Assert.True(model.HasNextPage);
+        Assert.True(model.HasLivros);
     }
 
     [Fact]
@@ -144,14 +151,13 @@ public class LivrosControllerTests
 
         var result = controller.Index(page: 99);
 
-        var viewResult = Assert.IsType<ViewResult>(result);
-        var livros = Assert.IsAssignableFrom<IEnumerable<Livro>>(viewResult.Model).ToList();
+        var model = ObterIndexViewModel(result);
 
-        Assert.Single(livros);
-        Assert.Equal(3, controller.ViewBag.CurrentPage);
-        Assert.Equal(3, controller.ViewBag.TotalPages);
-        Assert.True(controller.ViewBag.HasPreviousPage);
-        Assert.False(controller.ViewBag.HasNextPage);
+        Assert.Single(model.Livros);
+        Assert.Equal(3, model.CurrentPage);
+        Assert.Equal(3, model.TotalPages);
+        Assert.True(model.HasPreviousPage);
+        Assert.False(model.HasNextPage);
     }
 
     [Fact]
@@ -169,12 +175,11 @@ public class LivrosControllerTests
 
         var result = controller.Index(page: 0);
 
-        var viewResult = Assert.IsType<ViewResult>(result);
-        var livros = Assert.IsAssignableFrom<IEnumerable<Livro>>(viewResult.Model).ToList();
+        var model = ObterIndexViewModel(result);
 
-        Assert.Equal(2, livros.Count);
-        Assert.Equal(1, controller.ViewBag.CurrentPage);
-        Assert.False(controller.ViewBag.HasPreviousPage);
+        Assert.Equal(2, model.Livros.Count);
+        Assert.Equal(1, model.CurrentPage);
+        Assert.False(model.HasPreviousPage);
     }
 
     [Fact]
@@ -193,12 +198,12 @@ public class LivrosControllerTests
 
         var result = controller.Index(busca: "Clean");
 
-        var viewResult = Assert.IsType<ViewResult>(result);
-        var livros = Assert.IsAssignableFrom<IEnumerable<Livro>>(viewResult.Model).ToList();
+        var model = ObterIndexViewModel(result);
 
-        Assert.Single(livros);
-        Assert.Equal("Clean Code", livros[0].Titulo);
-        Assert.Equal("Clean", controller.ViewBag.Busca);
+        Assert.Single(model.Livros);
+        Assert.Equal("Clean Code", model.Livros[0].Titulo);
+        Assert.Equal("Clean", model.Busca);
+        Assert.True(model.HasFiltros);
     }
 
     [Fact]
@@ -217,11 +222,10 @@ public class LivrosControllerTests
 
         var result = controller.Index(busca: "Eric");
 
-        var viewResult = Assert.IsType<ViewResult>(result);
-        var livros = Assert.IsAssignableFrom<IEnumerable<Livro>>(viewResult.Model).ToList();
+        var model = ObterIndexViewModel(result);
 
-        Assert.Single(livros);
-        Assert.Equal("Domain-Driven Design", livros[0].Titulo);
+        Assert.Single(model.Livros);
+        Assert.Equal("Domain-Driven Design", model.Livros[0].Titulo);
     }
 
     [Fact]
@@ -240,11 +244,10 @@ public class LivrosControllerTests
 
         var result = controller.Index(busca: "Casa");
 
-        var viewResult = Assert.IsType<ViewResult>(result);
-        var livros = Assert.IsAssignableFrom<IEnumerable<Livro>>(viewResult.Model).ToList();
+        var model = ObterIndexViewModel(result);
 
-        Assert.Single(livros);
-        Assert.Equal("C# Essencial", livros[0].Titulo);
+        Assert.Single(model.Livros);
+        Assert.Equal("C# Essencial", model.Livros[0].Titulo);
     }
 
     [Fact]
@@ -262,11 +265,10 @@ public class LivrosControllerTests
 
         var result = controller.Index(busca: "  Clean  ");
 
-        var viewResult = Assert.IsType<ViewResult>(result);
-        var livros = Assert.IsAssignableFrom<IEnumerable<Livro>>(viewResult.Model).ToList();
+        var model = ObterIndexViewModel(result);
 
-        Assert.Single(livros);
-        Assert.Equal("Clean", controller.ViewBag.Busca);
+        Assert.Single(model.Livros);
+        Assert.Equal("Clean", model.Busca);
     }
 
     [Fact]
@@ -286,14 +288,14 @@ public class LivrosControllerTests
 
         var result = controller.Index(disponibilidade: "disponiveis");
 
-        var viewResult = Assert.IsType<ViewResult>(result);
-        var livros = Assert.IsAssignableFrom<IEnumerable<Livro>>(viewResult.Model).ToList();
+        var model = ObterIndexViewModel(result);
 
-        Assert.Equal(2, livros.Count);
-        Assert.All(livros, livro => Assert.True(livro.Disponivel));
-        Assert.Equal("disponiveis", controller.ViewBag.Disponibilidade);
-        Assert.Equal(2, controller.ViewBag.TotalDisponiveis);
-        Assert.Equal(0, controller.ViewBag.TotalEmprestados);
+        Assert.Equal(2, model.Livros.Count);
+        Assert.All(model.Livros, livro => Assert.True(livro.Disponivel));
+        Assert.Equal("disponiveis", model.Disponibilidade);
+        Assert.Equal(2, model.TotalDisponiveis);
+        Assert.Equal(0, model.TotalEmprestados);
+        Assert.True(model.HasFiltros);
     }
 
     [Fact]
@@ -315,14 +317,14 @@ public class LivrosControllerTests
 
         var result = controller.Index(disponibilidade: "emprestados");
 
-        var viewResult = Assert.IsType<ViewResult>(result);
-        var livros = Assert.IsAssignableFrom<IEnumerable<Livro>>(viewResult.Model).ToList();
+        var model = ObterIndexViewModel(result);
 
-        Assert.Equal(2, livros.Count);
-        Assert.All(livros, livro => Assert.False(livro.Disponivel));
-        Assert.Equal("emprestados", controller.ViewBag.Disponibilidade);
-        Assert.Equal(0, controller.ViewBag.TotalDisponiveis);
-        Assert.Equal(2, controller.ViewBag.TotalEmprestados);
+        Assert.Equal(2, model.Livros.Count);
+        Assert.All(model.Livros, livro => Assert.False(livro.Disponivel));
+        Assert.Equal("emprestados", model.Disponibilidade);
+        Assert.Equal(0, model.TotalDisponiveis);
+        Assert.Equal(2, model.TotalEmprestados);
+        Assert.True(model.HasFiltros);
     }
 
     [Fact]
@@ -340,11 +342,11 @@ public class LivrosControllerTests
 
         var result = controller.Index(disponibilidade: "   ");
 
-        var viewResult = Assert.IsType<ViewResult>(result);
-        var livros = Assert.IsAssignableFrom<IEnumerable<Livro>>(viewResult.Model).ToList();
+        var model = ObterIndexViewModel(result);
 
-        Assert.Equal(2, livros.Count);
-        Assert.Equal("todos", controller.ViewBag.Disponibilidade);
+        Assert.Equal(2, model.Livros.Count);
+        Assert.Equal("todos", model.Disponibilidade);
+        Assert.False(model.HasFiltros);
     }
 
     [Fact]
@@ -360,9 +362,11 @@ public class LivrosControllerTests
 
         var controller = CriarController(context);
 
-        _ = controller.Index();
+        var result = controller.Index();
 
-        Assert.Equal("15/05/2020", controller.ViewBag.PublicacaoMaisRecente);
+        var model = ObterIndexViewModel(result);
+
+        Assert.Equal("15/05/2020", model.PublicacaoMaisRecente);
     }
 
     // =========================================================

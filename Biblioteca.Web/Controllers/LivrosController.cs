@@ -36,7 +36,7 @@ namespace Biblioteca.Web.Controllers
 
             try
             {
-                busca = busca?.Trim();
+                busca = busca?.Trim() ?? string.Empty;
                 disponibilidade = string.IsNullOrWhiteSpace(disponibilidade)
                     ? "todos"
                     : disponibilidade.Trim().ToLowerInvariant();
@@ -86,20 +86,20 @@ namespace Biblioteca.Web.Controllers
                     .Take(pageSize)
                     .ToList();
 
-                ViewBag.CurrentPage = page;
-                ViewBag.TotalPages = totalPages;
-                ViewBag.HasPreviousPage = page > 1;
-                ViewBag.HasNextPage = page < totalPages;
+                var model = new LivrosIndexViewModel
+                {
+                    Livros = livros,
+                    Busca = busca,
+                    Disponibilidade = disponibilidade,
+                    CurrentPage = page,
+                    TotalPages = totalPages,
+                    TotalLivros = totalLivros,
+                    TotalDisponiveis = totalDisponiveis,
+                    TotalEmprestados = totalEmprestados,
+                    PublicacaoMaisRecente = publicacaoMaisRecente
+                };
 
-                ViewBag.TotalLivros = totalLivros;
-                ViewBag.TotalDisponiveis = totalDisponiveis;
-                ViewBag.TotalEmprestados = totalEmprestados;
-                ViewBag.PublicacaoMaisRecente = publicacaoMaisRecente;
-
-                ViewBag.Busca = busca ?? string.Empty;
-                ViewBag.Disponibilidade = disponibilidade;
-
-                return View(livros);
+                return View(model);
             }
             catch (Exception ex)
             {
