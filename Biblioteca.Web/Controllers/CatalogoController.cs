@@ -1,4 +1,5 @@
 using Biblioteca.Web.Data;
+using Biblioteca.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -37,7 +38,7 @@ namespace Biblioteca.Web.Controllers
         /// </summary>
         public IActionResult Index(string? busca = null, string disponibilidade = "todos", int page = 1)
         {
-            busca = busca?.Trim();
+            busca = busca?.Trim() ?? string.Empty;
 
             disponibilidade = string.IsNullOrWhiteSpace(disponibilidade)
                 ? "todos"
@@ -48,7 +49,7 @@ namespace Biblioteca.Web.Controllers
 
             var cacheKey = CriarChaveCache(busca, disponibilidade, page);
 
-            if (_cache.TryGetValue(cacheKey, out CatalogoCacheResult? resultadoCache) && resultadoCache is not null)
+            if (_cache.TryGetValue(cacheKey, out CatalogoIndexViewModel? modelCache) && modelCache is not null)
             {
                 _logger.LogInformation(
                     "Catálogo público carregado do cache. Busca: {Busca}, Disponibilidade: {Disponibilidade}, Página: {Pagina}",
@@ -56,9 +57,7 @@ namespace Biblioteca.Web.Controllers
                     disponibilidade,
                     page);
 
-                PreencherViewBag(resultadoCache, busca, disponibilidade);
-
-                return View(resultadoCache.Livros);
+                return View(modelCache);
             }
 
             var query = _context.Livros
@@ -98,9 +97,11 @@ namespace Biblioteca.Web.Controllers
                 .Take(PageSize)
                 .ToList();
 
-            var resultado = new CatalogoCacheResult
+            var model = new CatalogoIndexViewModel
             {
                 Livros = livros,
+                Busca = busca,
+                Disponibilidade = disponibilidade,
                 CurrentPage = page,
                 TotalPages = totalPages,
                 TotalLivros = totalLivros,
@@ -113,7 +114,7 @@ namespace Biblioteca.Web.Controllers
                 .SetSlidingExpiration(TimeSpan.FromMinutes(1))
                 .SetPriority(CacheItemPriority.Normal);
 
-            _cache.Set(cacheKey, resultado, cacheOptions);
+            _cache.Set(cacheKey, model, cacheOptions);
 
             _logger.LogInformation(
                 "Catálogo público armazenado em cache. Busca: {Busca}, Disponibilidade: {Disponibilidade}, Página: {Pagina}",
@@ -121,9 +122,7 @@ namespace Biblioteca.Web.Controllers
                 disponibilidade,
                 page);
 
-            PreencherViewBag(resultado, busca, disponibilidade);
-
-            return View(livros);
+            return View(model);
         }
 
         private static string CriarChaveCache(string? busca, string disponibilidade, int page)
@@ -133,35 +132,6 @@ namespace Biblioteca.Web.Controllers
                 : busca.Trim().ToLowerInvariant();
 
             return $"{CacheKeyPrefix}:busca={buscaNormalizada}:disponibilidade={disponibilidade}:page={page}";
-        }
-
-        private void PreencherViewBag(CatalogoCacheResult resultado, string? busca, string disponibilidade)
-        {
-            ViewBag.CurrentPage = resultado.CurrentPage;
-            ViewBag.TotalPages = resultado.TotalPages;
-            ViewBag.HasPreviousPage = resultado.CurrentPage > 1;
-            ViewBag.HasNextPage = resultado.CurrentPage < resultado.TotalPages;
-
-            ViewBag.TotalLivros = resultado.TotalLivros;
-            ViewBag.TotalDisponiveis = resultado.TotalDisponiveis;
-            ViewBag.TotalEmprestados = resultado.TotalEmprestados;
-            ViewBag.Busca = busca ?? string.Empty;
-            ViewBag.Disponibilidade = disponibilidade;
-        }
-
-        private sealed class CatalogoCacheResult
-        {
-            public List<Domain.Entities.Livro> Livros { get; init; } = new();
-
-            public int CurrentPage { get; init; }
-
-            public int TotalPages { get; init; }
-
-            public int TotalLivros { get; init; }
-
-            public int TotalDisponiveis { get; init; }
-
-            public int TotalEmprestados { get; init; }
         }
     }
 }
