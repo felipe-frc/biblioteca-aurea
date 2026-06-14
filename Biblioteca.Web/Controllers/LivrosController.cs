@@ -258,9 +258,21 @@ namespace Biblioteca.Web.Controllers
                     return NotFound();
 
                 bool temEmprestimoRelacionado = _context.Emprestimos.Any(e => e.LivroId == id);
-                ViewBag.TemEmprestimoRelacionado = temEmprestimoRelacionado;
 
-                return View(livro);
+                var model = new LivroDeleteViewModel
+                {
+                    Id = livro.Id,
+                    Titulo = livro.Titulo,
+                    Autor = livro.Autor,
+                    Editora = livro.Editora,
+                    Edicao = livro.Edicao,
+                    DataPublicacao = livro.DataPublicacao,
+                    NumeroPaginas = livro.NumeroPaginas,
+                    Disponivel = livro.Disponivel,
+                    TemEmprestimoRelacionado = temEmprestimoRelacionado
+                };
+
+                return View(model);
             }
             catch (Exception ex)
             {

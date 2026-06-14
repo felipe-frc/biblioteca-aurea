@@ -1,7 +1,6 @@
-﻿@model Biblioteca.Domain.Entities.Livro
+﻿@model Biblioteca.Web.ViewModels.LivroDeleteViewModel
 
 @{
-    bool temEmprestimoRelacionado = ViewBag.TemEmprestimoRelacionado ?? false;
     ViewData["Title"] = "Excluir Livro";
     Layout = "~/Views/Shared/_LayoutInner.cshtml";
 }
@@ -16,9 +15,12 @@
         </div>
 
         <div class="crud-form-card">
-            <div class="crud-alert crud-alert-warning">
-                Tem certeza que deseja excluir o livro abaixo?
-            </div>
+            @if (Model.PodeExcluir)
+            {
+                <div class="crud-alert crud-alert-warning">
+                    Tem certeza que deseja excluir o livro abaixo?
+                </div>
+            }
 
             <div class="crud-delete-list">
                 <div class="crud-delete-item"><strong>Id:</strong> @Model.Id</div>
@@ -31,7 +33,7 @@
                 <div class="crud-delete-item"><strong>Disponível:</strong> @(Model.Disponivel ? "Sim" : "Não")</div>
             </div>
 
-            @if (temEmprestimoRelacionado)
+            @if (Model.TemEmprestimoRelacionado)
             {
                 <div class="crud-alert crud-alert-danger">
                     Não é possível excluir este livro porque ele possui empréstimos registrados no histórico.

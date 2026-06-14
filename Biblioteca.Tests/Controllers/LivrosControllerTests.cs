@@ -80,6 +80,12 @@ public class LivrosControllerTests
         return Assert.IsType<LivrosIndexViewModel>(viewResult.Model);
     }
 
+    private static LivroDeleteViewModel ObterDeleteViewModel(IActionResult result)
+    {
+        var viewResult = Assert.IsType<ViewResult>(result);
+        return Assert.IsType<LivroDeleteViewModel>(viewResult.Model);
+    }
+
     // =========================================================
     // Index
     // =========================================================
@@ -585,7 +591,7 @@ public class LivrosControllerTests
     // =========================================================
 
     [Fact]
-    public void Delete_Get_ComIdExistente_DeveRetornarViewComLivro()
+    public void Delete_Get_ComIdExistente_DeveRetornarViewModelComDadosDoLivro()
     {
         using var context = CriarContexto();
         var livro = CriarLivro();
@@ -597,11 +603,18 @@ public class LivrosControllerTests
 
         var result = controller.Delete(livro.Id);
 
-        var viewResult = Assert.IsType<ViewResult>(result);
-        var model = Assert.IsType<Livro>(viewResult.Model);
+        var model = ObterDeleteViewModel(result);
 
         Assert.Equal(livro.Id, model.Id);
-        Assert.False(controller.ViewBag.TemEmprestimoRelacionado);
+        Assert.Equal(livro.Titulo, model.Titulo);
+        Assert.Equal(livro.Autor, model.Autor);
+        Assert.Equal(livro.Editora, model.Editora);
+        Assert.Equal(livro.Edicao, model.Edicao);
+        Assert.Equal(livro.DataPublicacao, model.DataPublicacao);
+        Assert.Equal(livro.NumeroPaginas, model.NumeroPaginas);
+        Assert.Equal(livro.Disponivel, model.Disponivel);
+        Assert.False(model.TemEmprestimoRelacionado);
+        Assert.True(model.PodeExcluir);
     }
 
     [Fact]
@@ -616,7 +629,7 @@ public class LivrosControllerTests
     }
 
     [Fact]
-    public void Delete_Get_ComLivroComEmprestimoRelacionado_DeveInformarViewBag()
+    public void Delete_Get_ComLivroComEmprestimoRelacionado_DeveRetornarViewModelComBloqueio()
     {
         using var context = CriarContexto();
 
@@ -635,11 +648,11 @@ public class LivrosControllerTests
 
         var result = controller.Delete(livro.Id);
 
-        var viewResult = Assert.IsType<ViewResult>(result);
-        var model = Assert.IsType<Livro>(viewResult.Model);
+        var model = ObterDeleteViewModel(result);
 
         Assert.Equal(livro.Id, model.Id);
-        Assert.True(controller.ViewBag.TemEmprestimoRelacionado);
+        Assert.True(model.TemEmprestimoRelacionado);
+        Assert.False(model.PodeExcluir);
     }
 
     // =========================================================
