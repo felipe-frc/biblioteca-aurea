@@ -83,31 +83,38 @@ public class EmprestimosControllerTests
         };
     }
 
+    private static EmprestimosIndexViewModel ObterIndexViewModel(IActionResult result)
+    {
+        var viewResult = Assert.IsType<ViewResult>(result);
+        return Assert.IsType<EmprestimosIndexViewModel>(viewResult.Model);
+    }
+
     // =========================================================
     // Index
     // =========================================================
 
     [Fact]
-    public void Index_SemEmprestimos_DeveRetornarListaVaziaComViewBagsPadrao()
+    public void Index_SemEmprestimos_DeveRetornarViewModelVazioComValoresPadrao()
     {
         using var context = CriarContexto();
         var controller = CriarController(context);
 
         var result = controller.Index();
 
-        var viewResult = Assert.IsType<ViewResult>(result);
-        var emprestimos = Assert.IsAssignableFrom<IEnumerable<Emprestimo>>(viewResult.Model).ToList();
+        var model = ObterIndexViewModel(result);
 
-        Assert.Empty(emprestimos);
-        Assert.Equal(1, controller.ViewBag.CurrentPage);
-        Assert.Equal(1, controller.ViewBag.TotalPages);
-        Assert.False(controller.ViewBag.HasPreviousPage);
-        Assert.False(controller.ViewBag.HasNextPage);
-        Assert.Equal(0, controller.ViewBag.TotalEmprestimos);
-        Assert.Equal(0, controller.ViewBag.Ativos);
-        Assert.Equal(0, controller.ViewBag.Atrasados);
-        Assert.Equal(0, controller.ViewBag.Devolvidos);
-        Assert.Equal("todos", controller.ViewBag.FiltroStatus);
+        Assert.Empty(model.Emprestimos);
+        Assert.Equal(1, model.CurrentPage);
+        Assert.Equal(1, model.TotalPages);
+        Assert.False(model.HasPreviousPage);
+        Assert.False(model.HasNextPage);
+        Assert.Equal(0, model.TotalEmprestimos);
+        Assert.Equal(0, model.Ativos);
+        Assert.Equal(0, model.Atrasados);
+        Assert.Equal(0, model.Devolvidos);
+        Assert.Equal("todos", model.FiltroStatus);
+        Assert.False(model.HasEmprestimos);
+        Assert.False(model.HasFiltroStatus);
     }
 
     [Fact]
@@ -132,15 +139,15 @@ public class EmprestimosControllerTests
 
         var result = controller.Index();
 
-        var viewResult = Assert.IsType<ViewResult>(result);
-        var emprestimos = Assert.IsAssignableFrom<IEnumerable<Emprestimo>>(viewResult.Model).ToList();
+        var model = ObterIndexViewModel(result);
 
-        Assert.Equal(6, emprestimos.Count);
-        Assert.Equal(1, controller.ViewBag.CurrentPage);
-        Assert.Equal(2, controller.ViewBag.TotalPages);
-        Assert.False(controller.ViewBag.HasPreviousPage);
-        Assert.True(controller.ViewBag.HasNextPage);
-        Assert.Equal(8, controller.ViewBag.TotalEmprestimos);
+        Assert.Equal(6, model.Emprestimos.Count);
+        Assert.Equal(1, model.CurrentPage);
+        Assert.Equal(2, model.TotalPages);
+        Assert.False(model.HasPreviousPage);
+        Assert.True(model.HasNextPage);
+        Assert.Equal(8, model.TotalEmprestimos);
+        Assert.True(model.HasEmprestimos);
     }
 
     [Fact]
@@ -165,14 +172,13 @@ public class EmprestimosControllerTests
 
         var result = controller.Index(page: 99);
 
-        var viewResult = Assert.IsType<ViewResult>(result);
-        var emprestimos = Assert.IsAssignableFrom<IEnumerable<Emprestimo>>(viewResult.Model).ToList();
+        var model = ObterIndexViewModel(result);
 
-        Assert.Single(emprestimos);
-        Assert.Equal(3, controller.ViewBag.CurrentPage);
-        Assert.Equal(3, controller.ViewBag.TotalPages);
-        Assert.True(controller.ViewBag.HasPreviousPage);
-        Assert.False(controller.ViewBag.HasNextPage);
+        Assert.Single(model.Emprestimos);
+        Assert.Equal(3, model.CurrentPage);
+        Assert.Equal(3, model.TotalPages);
+        Assert.True(model.HasPreviousPage);
+        Assert.False(model.HasNextPage);
     }
 
     [Fact]
@@ -194,12 +200,11 @@ public class EmprestimosControllerTests
 
         var result = controller.Index(page: 0);
 
-        var viewResult = Assert.IsType<ViewResult>(result);
-        var emprestimos = Assert.IsAssignableFrom<IEnumerable<Emprestimo>>(viewResult.Model).ToList();
+        var model = ObterIndexViewModel(result);
 
-        Assert.Single(emprestimos);
-        Assert.Equal(1, controller.ViewBag.CurrentPage);
-        Assert.False(controller.ViewBag.HasPreviousPage);
+        Assert.Single(model.Emprestimos);
+        Assert.Equal(1, model.CurrentPage);
+        Assert.False(model.HasPreviousPage);
     }
 
     [Fact]
@@ -228,16 +233,16 @@ public class EmprestimosControllerTests
 
         var result = controller.Index(filtroStatus: "ativos");
 
-        var viewResult = Assert.IsType<ViewResult>(result);
-        var emprestimos = Assert.IsAssignableFrom<IEnumerable<Emprestimo>>(viewResult.Model).ToList();
+        var model = ObterIndexViewModel(result);
 
-        Assert.Single(emprestimos);
-        Assert.Equal(emprestimoAtivo.Id, emprestimos[0].Id);
-        Assert.Equal("ativos", controller.ViewBag.FiltroStatus);
-        Assert.Equal(1, controller.ViewBag.TotalEmprestimos);
-        Assert.Equal(1, controller.ViewBag.Ativos);
-        Assert.Equal(1, controller.ViewBag.Atrasados);
-        Assert.Equal(0, controller.ViewBag.Devolvidos);
+        Assert.Single(model.Emprestimos);
+        Assert.Equal(emprestimoAtivo.Id, model.Emprestimos[0].Id);
+        Assert.Equal("ativos", model.FiltroStatus);
+        Assert.Equal(1, model.TotalEmprestimos);
+        Assert.Equal(1, model.Ativos);
+        Assert.Equal(1, model.Atrasados);
+        Assert.Equal(0, model.Devolvidos);
+        Assert.True(model.HasFiltroStatus);
     }
 
     [Fact]
@@ -262,13 +267,13 @@ public class EmprestimosControllerTests
 
         var result = controller.Index(filtroStatus: "atrasados");
 
-        var viewResult = Assert.IsType<ViewResult>(result);
-        var emprestimos = Assert.IsAssignableFrom<IEnumerable<Emprestimo>>(viewResult.Model).ToList();
+        var model = ObterIndexViewModel(result);
 
-        Assert.Single(emprestimos);
-        Assert.Equal(emprestimo.Id, emprestimos[0].Id);
-        Assert.Equal("atrasados", controller.ViewBag.FiltroStatus);
-        Assert.Equal(1, controller.ViewBag.Atrasados);
+        Assert.Single(model.Emprestimos);
+        Assert.Equal(emprestimo.Id, model.Emprestimos[0].Id);
+        Assert.Equal("atrasados", model.FiltroStatus);
+        Assert.Equal(1, model.Atrasados);
+        Assert.True(model.HasFiltroStatus);
     }
 
     [Fact]
@@ -297,13 +302,13 @@ public class EmprestimosControllerTests
 
         var result = controller.Index(filtroStatus: "devolvidos");
 
-        var viewResult = Assert.IsType<ViewResult>(result);
-        var emprestimos = Assert.IsAssignableFrom<IEnumerable<Emprestimo>>(viewResult.Model).ToList();
+        var model = ObterIndexViewModel(result);
 
-        Assert.Single(emprestimos);
-        Assert.Equal(emprestimoDevolvido.Id, emprestimos[0].Id);
-        Assert.Equal("devolvidos", controller.ViewBag.FiltroStatus);
-        Assert.Equal(1, controller.ViewBag.Devolvidos);
+        Assert.Single(model.Emprestimos);
+        Assert.Equal(emprestimoDevolvido.Id, model.Emprestimos[0].Id);
+        Assert.Equal("devolvidos", model.FiltroStatus);
+        Assert.Equal(1, model.Devolvidos);
+        Assert.True(model.HasFiltroStatus);
     }
 
     [Fact]
@@ -325,11 +330,11 @@ public class EmprestimosControllerTests
 
         var result = controller.Index(filtroStatus: "   ");
 
-        var viewResult = Assert.IsType<ViewResult>(result);
-        var emprestimos = Assert.IsAssignableFrom<IEnumerable<Emprestimo>>(viewResult.Model).ToList();
+        var model = ObterIndexViewModel(result);
 
-        Assert.Single(emprestimos);
-        Assert.Equal("todos", controller.ViewBag.FiltroStatus);
+        Assert.Single(model.Emprestimos);
+        Assert.Equal("todos", model.FiltroStatus);
+        Assert.False(model.HasFiltroStatus);
     }
 
     // =========================================================

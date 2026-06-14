@@ -107,18 +107,20 @@ namespace Biblioteca.Web.Controllers
                 emprestimo.AtualizarStatus(hoje);
             }
 
-            ViewBag.CurrentPage = page;
-            ViewBag.TotalPages = totalPages;
-            ViewBag.HasPreviousPage = page > 1;
-            ViewBag.HasNextPage = page < totalPages;
+            var model = new EmprestimosIndexViewModel
+            {
+                Emprestimos = emprestimos,
+                Hoje = hoje,
+                FiltroStatus = filtroStatus,
+                CurrentPage = page,
+                TotalPages = totalPages,
+                TotalEmprestimos = totalEncontrados,
+                Ativos = totalAtivos,
+                Atrasados = totalAtrasados,
+                Devolvidos = totalDevolvidos
+            };
 
-            ViewBag.TotalEmprestimos = totalEncontrados;
-            ViewBag.Ativos = totalAtivos;
-            ViewBag.Atrasados = totalAtrasados;
-            ViewBag.Devolvidos = totalDevolvidos;
-            ViewBag.FiltroStatus = filtroStatus;
-
-            return View(emprestimos);
+            return View(model);
         }
 
         /// <summary>
