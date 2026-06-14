@@ -3,6 +3,7 @@ using Biblioteca.Domain.Enums;
 using Biblioteca.Web.Constants;
 using Biblioteca.Web.Controllers;
 using Biblioteca.Web.Data;
+using Biblioteca.Web.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -61,31 +62,37 @@ public class DashboardControllerTests
         return new Usuario(nome, email);
     }
 
+    private static DashboardViewModel ObterDashboardViewModel(IActionResult result)
+    {
+        var viewResult = Assert.IsType<ViewResult>(result);
+        return Assert.IsType<DashboardViewModel>(viewResult.Model);
+    }
+
     // =========================================================
     // Dashboard vazio
     // =========================================================
 
     [Fact]
-    public void Index_SemDados_DeveRetornarViewComIndicadoresZerados()
+    public void Index_SemDados_DeveRetornarViewModelComIndicadoresZerados()
     {
         using var context = CriarContexto();
         var controller = CriarController(context);
 
         var result = controller.Index();
 
-        var viewResult = Assert.IsType<ViewResult>(result);
-        var emprestimos = Assert.IsAssignableFrom<IEnumerable<Emprestimo>>(viewResult.Model).ToList();
+        var model = ObterDashboardViewModel(result);
 
-        Assert.Empty(emprestimos);
+        Assert.Empty(model.UltimosEmprestimos);
 
-        Assert.Equal(0, controller.ViewBag.TotalLivros);
-        Assert.Equal(0, controller.ViewBag.LivrosDisponiveis);
-        Assert.Equal(0, controller.ViewBag.LivrosEmprestados);
-        Assert.Equal(0, controller.ViewBag.TotalUsuarios);
-        Assert.Equal(0, controller.ViewBag.TotalEmprestimos);
-        Assert.Equal(0, controller.ViewBag.EmprestimosAtivos);
-        Assert.Equal(0, controller.ViewBag.EmprestimosAtrasados);
-        Assert.Equal(0, controller.ViewBag.EmprestimosDevolvidos);
+        Assert.Equal(0, model.TotalLivros);
+        Assert.Equal(0, model.LivrosDisponiveis);
+        Assert.Equal(0, model.LivrosEmprestados);
+        Assert.Equal(0, model.TotalUsuarios);
+        Assert.Equal(0, model.TotalEmprestimos);
+        Assert.Equal(0, model.EmprestimosAtivos);
+        Assert.Equal(0, model.EmprestimosAtrasados);
+        Assert.Equal(0, model.EmprestimosDevolvidos);
+        Assert.False(model.HasUltimosEmprestimos);
     }
 
     // =========================================================
@@ -127,19 +134,19 @@ public class DashboardControllerTests
 
         var result = controller.Index();
 
-        var viewResult = Assert.IsType<ViewResult>(result);
-        var emprestimos = Assert.IsAssignableFrom<IEnumerable<Emprestimo>>(viewResult.Model).ToList();
+        var model = ObterDashboardViewModel(result);
 
-        Assert.Equal(2, emprestimos.Count);
+        Assert.Equal(2, model.UltimosEmprestimos.Count);
 
-        Assert.Equal(3, controller.ViewBag.TotalLivros);
-        Assert.Equal(1, controller.ViewBag.LivrosDisponiveis);
-        Assert.Equal(2, controller.ViewBag.LivrosEmprestados);
-        Assert.Equal(2, controller.ViewBag.TotalUsuarios);
-        Assert.Equal(2, controller.ViewBag.TotalEmprestimos);
-        Assert.Equal(1, controller.ViewBag.EmprestimosAtivos);
-        Assert.Equal(1, controller.ViewBag.EmprestimosAtrasados);
-        Assert.Equal(0, controller.ViewBag.EmprestimosDevolvidos);
+        Assert.Equal(3, model.TotalLivros);
+        Assert.Equal(1, model.LivrosDisponiveis);
+        Assert.Equal(2, model.LivrosEmprestados);
+        Assert.Equal(2, model.TotalUsuarios);
+        Assert.Equal(2, model.TotalEmprestimos);
+        Assert.Equal(1, model.EmprestimosAtivos);
+        Assert.Equal(1, model.EmprestimosAtrasados);
+        Assert.Equal(0, model.EmprestimosDevolvidos);
+        Assert.True(model.HasUltimosEmprestimos);
     }
 
     [Fact]
@@ -164,15 +171,14 @@ public class DashboardControllerTests
 
         var result = controller.Index();
 
-        var viewResult = Assert.IsType<ViewResult>(result);
-        var emprestimos = Assert.IsAssignableFrom<IEnumerable<Emprestimo>>(viewResult.Model).ToList();
+        var model = ObterDashboardViewModel(result);
 
-        Assert.Single(emprestimos);
+        Assert.Single(model.UltimosEmprestimos);
 
-        Assert.Equal(1, controller.ViewBag.TotalEmprestimos);
-        Assert.Equal(0, controller.ViewBag.EmprestimosAtivos);
-        Assert.Equal(0, controller.ViewBag.EmprestimosAtrasados);
-        Assert.Equal(1, controller.ViewBag.EmprestimosDevolvidos);
+        Assert.Equal(1, model.TotalEmprestimos);
+        Assert.Equal(0, model.EmprestimosAtivos);
+        Assert.Equal(0, model.EmprestimosAtrasados);
+        Assert.Equal(1, model.EmprestimosDevolvidos);
     }
 
     // =========================================================
@@ -204,16 +210,15 @@ public class DashboardControllerTests
 
         var result = controller.Index();
 
-        var viewResult = Assert.IsType<ViewResult>(result);
-        var emprestimos = Assert.IsAssignableFrom<IEnumerable<Emprestimo>>(viewResult.Model).ToList();
+        var model = ObterDashboardViewModel(result);
 
-        Assert.Equal(5, emprestimos.Count);
-        Assert.Equal(7, controller.ViewBag.TotalEmprestimos);
+        Assert.Equal(5, model.UltimosEmprestimos.Count);
+        Assert.Equal(7, model.TotalEmprestimos);
 
-        Assert.True(emprestimos[0].DataEmprestimo >= emprestimos[1].DataEmprestimo);
-        Assert.True(emprestimos[1].DataEmprestimo >= emprestimos[2].DataEmprestimo);
-        Assert.True(emprestimos[2].DataEmprestimo >= emprestimos[3].DataEmprestimo);
-        Assert.True(emprestimos[3].DataEmprestimo >= emprestimos[4].DataEmprestimo);
+        Assert.True(model.UltimosEmprestimos[0].DataEmprestimo >= model.UltimosEmprestimos[1].DataEmprestimo);
+        Assert.True(model.UltimosEmprestimos[1].DataEmprestimo >= model.UltimosEmprestimos[2].DataEmprestimo);
+        Assert.True(model.UltimosEmprestimos[2].DataEmprestimo >= model.UltimosEmprestimos[3].DataEmprestimo);
+        Assert.True(model.UltimosEmprestimos[3].DataEmprestimo >= model.UltimosEmprestimos[4].DataEmprestimo);
     }
 
     [Fact]
@@ -238,11 +243,10 @@ public class DashboardControllerTests
 
         var result = controller.Index();
 
-        var viewResult = Assert.IsType<ViewResult>(result);
-        var emprestimos = Assert.IsAssignableFrom<IEnumerable<Emprestimo>>(viewResult.Model).ToList();
+        var model = ObterDashboardViewModel(result);
 
-        Assert.Single(emprestimos);
-        Assert.Equal(StatusEmprestimo.Atrasado, emprestimos[0].Status);
+        Assert.Single(model.UltimosEmprestimos);
+        Assert.Equal(StatusEmprestimo.Atrasado, model.UltimosEmprestimos[0].Status);
     }
 
     [Fact]
@@ -266,14 +270,13 @@ public class DashboardControllerTests
 
         var result = controller.Index();
 
-        var viewResult = Assert.IsType<ViewResult>(result);
-        var emprestimos = Assert.IsAssignableFrom<IEnumerable<Emprestimo>>(viewResult.Model).ToList();
+        var model = ObterDashboardViewModel(result);
 
-        Assert.Single(emprestimos);
-        Assert.NotNull(emprestimos[0].Livro);
-        Assert.NotNull(emprestimos[0].Usuario);
-        Assert.Equal("Clean Code", emprestimos[0].Livro.Titulo);
-        Assert.Equal("Marcos Felipe", emprestimos[0].Usuario.Nome);
+        Assert.Single(model.UltimosEmprestimos);
+        Assert.NotNull(model.UltimosEmprestimos[0].Livro);
+        Assert.NotNull(model.UltimosEmprestimos[0].Usuario);
+        Assert.Equal("Clean Code", model.UltimosEmprestimos[0].Livro.Titulo);
+        Assert.Equal("Marcos Felipe", model.UltimosEmprestimos[0].Usuario.Nome);
     }
 
     // =========================================================

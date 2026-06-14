@@ -1,26 +1,8 @@
-﻿@model IEnumerable<Biblioteca.Domain.Entities.Emprestimo>
-@using System.Linq
+﻿@model Biblioteca.Web.ViewModels.DashboardViewModel
 
 @{
     ViewData["Title"] = "Dashboard Administrativo";
     Layout = "~/Views/Shared/_LayoutInner.cshtml";
-
-    var ultimosEmprestimos = Model?.ToList() ?? new List<Biblioteca.Domain.Entities.Emprestimo>();
-    var hoje = DateTime.Today;
-
-    foreach (var emprestimo in ultimosEmprestimos)
-    {
-        emprestimo.AtualizarStatus(hoje);
-    }
-
-    var totalLivros = ViewBag.TotalLivros is int tl ? tl : 0;
-    var livrosDisponiveis = ViewBag.LivrosDisponiveis is int ld ? ld : 0;
-    var livrosEmprestados = ViewBag.LivrosEmprestados is int le ? le : 0;
-    var totalUsuarios = ViewBag.TotalUsuarios is int tu ? tu : 0;
-    var totalEmprestimos = ViewBag.TotalEmprestimos is int te ? te : 0;
-    var emprestimosAtivos = ViewBag.EmprestimosAtivos is int ea ? ea : 0;
-    var emprestimosAtrasados = ViewBag.EmprestimosAtrasados is int eat ? eat : 0;
-    var emprestimosDevolvidos = ViewBag.EmprestimosDevolvidos is int ed ? ed : 0;
 }
 
 <section class="crud-page">
@@ -44,28 +26,28 @@
             <div class="col-lg-3 col-md-6">
                 <div class="crud-stat-card crud-stat-gold">
                     <span class="crud-stat-label">Total de Livros</span>
-                    <strong class="crud-stat-value">@totalLivros</strong>
+                    <strong class="crud-stat-value">@Model.TotalLivros</strong>
                 </div>
             </div>
 
             <div class="col-lg-3 col-md-6">
                 <div class="crud-stat-card crud-stat-blue">
                     <span class="crud-stat-label">Livros Disponíveis</span>
-                    <strong class="crud-stat-value">@livrosDisponiveis</strong>
+                    <strong class="crud-stat-value">@Model.LivrosDisponiveis</strong>
                 </div>
             </div>
 
             <div class="col-lg-3 col-md-6">
                 <div class="crud-stat-card crud-stat-gold">
                     <span class="crud-stat-label">Livros Emprestados</span>
-                    <strong class="crud-stat-value">@livrosEmprestados</strong>
+                    <strong class="crud-stat-value">@Model.LivrosEmprestados</strong>
                 </div>
             </div>
 
             <div class="col-lg-3 col-md-6">
                 <div class="crud-stat-card crud-stat-blue">
                     <span class="crud-stat-label">Usuários</span>
-                    <strong class="crud-stat-value">@totalUsuarios</strong>
+                    <strong class="crud-stat-value">@Model.TotalUsuarios</strong>
                 </div>
             </div>
         </div>
@@ -74,28 +56,28 @@
             <div class="col-lg-3 col-md-6">
                 <div class="crud-stat-card crud-stat-gold">
                     <span class="crud-stat-label">Total de Empréstimos</span>
-                    <strong class="crud-stat-value">@totalEmprestimos</strong>
+                    <strong class="crud-stat-value">@Model.TotalEmprestimos</strong>
                 </div>
             </div>
 
             <div class="col-lg-3 col-md-6">
                 <div class="crud-stat-card crud-stat-blue">
                     <span class="crud-stat-label">Empréstimos Ativos</span>
-                    <strong class="crud-stat-value">@emprestimosAtivos</strong>
+                    <strong class="crud-stat-value">@Model.EmprestimosAtivos</strong>
                 </div>
             </div>
 
             <div class="col-lg-3 col-md-6">
                 <div class="crud-stat-card crud-stat-gold">
                     <span class="crud-stat-label">Empréstimos Atrasados</span>
-                    <strong class="crud-stat-value">@emprestimosAtrasados</strong>
+                    <strong class="crud-stat-value">@Model.EmprestimosAtrasados</strong>
                 </div>
             </div>
 
             <div class="col-lg-3 col-md-6">
                 <div class="crud-stat-card crud-stat-blue">
                     <span class="crud-stat-label">Empréstimos Devolvidos</span>
-                    <strong class="crud-stat-value">@emprestimosDevolvidos</strong>
+                    <strong class="crud-stat-value">@Model.EmprestimosDevolvidos</strong>
                 </div>
             </div>
         </div>
@@ -140,7 +122,7 @@
             </div>
         </div>
 
-        @if (!ultimosEmprestimos.Any())
+        @if (!Model.HasUltimosEmprestimos)
         {
             <div class="crud-empty-state">
                 <h3>Nenhum empréstimo registrado.</h3>
@@ -164,24 +146,24 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var emprestimo in ultimosEmprestimos)
+                            @foreach (var emprestimo in Model.UltimosEmprestimos)
                             {
-                                var estaAtrasado = emprestimo.DataDevolucao is null && emprestimo.EstaAtrasado(hoje);
+                                var estaAtrasado = emprestimo.DataDevolucao is null && emprestimo.EstaAtrasado(Model.Hoje);
                                 var diasAtraso = estaAtrasado
-                                    ? (hoje - emprestimo.DataPrevistaDevolucao.Date).Days
-                                    : 0;
+                                ? (Model.Hoje - emprestimo.DataPrevistaDevolucao.Date).Days
+                                : 0;
 
                                 var statusTexto = emprestimo.DataDevolucao is not null
-                                    ? "Devolvido"
-                                    : estaAtrasado
-                                        ? "Atrasado"
-                                        : "Ativo";
+                                ? "Devolvido"
+                                : estaAtrasado
+                                ? "Atrasado"
+                                : "Ativo";
 
                                 var statusClasse = emprestimo.DataDevolucao is not null
-                                    ? "crud-pill-success"
-                                    : estaAtrasado
-                                        ? "crud-pill-danger"
-                                        : "crud-pill-warning";
+                                ? "crud-pill-success"
+                                : estaAtrasado
+                                ? "crud-pill-danger"
+                                : "crud-pill-warning";
 
                                 <tr>
                                     <td class="crud-strong" data-label="Livro">@emprestimo.Livro.Titulo</td>
@@ -189,7 +171,7 @@
                                     <td data-label="Retirada">@emprestimo.DataEmprestimo.ToString("dd/MM/yyyy")</td>
                                     <td data-label="Previsão">@emprestimo.DataPrevistaDevolucao.ToString("dd/MM/yyyy")</td>
                                     <td data-label="Devolução">
-                                        @(emprestimo.DataDevolucao.HasValue ? emprestimo.DataDevolucao.Value.ToString("dd/MM/yyyy") : "-")
+                                        @(emprestimo.DataDevolucao.HasValue? emprestimo.DataDevolucao.Value.ToString("dd/MM/yyyy") : "-")
                                     </td>
                                     <td data-label="Status">
                                         <span class="crud-pill @statusClasse">

@@ -1,5 +1,6 @@
 using Biblioteca.Web.Constants;
 using Biblioteca.Web.Data;
+using Biblioteca.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -65,16 +66,21 @@ namespace Biblioteca.Web.Controllers
                     emprestimo.AtualizarStatus(hoje);
                 }
 
-                ViewBag.TotalLivros = totalLivros;
-                ViewBag.LivrosDisponiveis = livrosDisponiveis;
-                ViewBag.LivrosEmprestados = livrosEmprestados;
-                ViewBag.TotalUsuarios = totalUsuarios;
-                ViewBag.TotalEmprestimos = totalEmprestimos;
-                ViewBag.EmprestimosAtivos = emprestimosAtivos;
-                ViewBag.EmprestimosAtrasados = emprestimosAtrasados;
-                ViewBag.EmprestimosDevolvidos = emprestimosDevolvidos;
+                var model = new DashboardViewModel
+                {
+                    UltimosEmprestimos = ultimosEmprestimos,
+                    Hoje = hoje,
+                    TotalLivros = totalLivros,
+                    LivrosDisponiveis = livrosDisponiveis,
+                    LivrosEmprestados = livrosEmprestados,
+                    TotalUsuarios = totalUsuarios,
+                    TotalEmprestimos = totalEmprestimos,
+                    EmprestimosAtivos = emprestimosAtivos,
+                    EmprestimosAtrasados = emprestimosAtrasados,
+                    EmprestimosDevolvidos = emprestimosDevolvidos
+                };
 
-                return View(ultimosEmprestimos);
+                return View(model);
             }
             catch (Exception ex)
             {
