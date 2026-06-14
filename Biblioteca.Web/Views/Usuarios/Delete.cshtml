@@ -1,10 +1,6 @@
-﻿@model Biblioteca.Domain.Entities.Usuario
+﻿@model Biblioteca.Web.ViewModels.UsuarioDeleteViewModel
 
 @{
-    bool temEmprestimoAtivo = ViewBag.TemEmprestimoAtivo ?? false;
-    bool temHistoricoEmprestimo = ViewBag.TemHistoricoEmprestimo ?? false;
-    bool podeExcluir = !temEmprestimoAtivo && !temHistoricoEmprestimo;
-
     ViewData["Title"] = "Excluir Usuário";
     Layout = "~/Views/Shared/_LayoutInner.cshtml";
 }
@@ -19,7 +15,7 @@
         </div>
 
         <div class="crud-form-card">
-            @if (podeExcluir)
+            @if (Model.PodeExcluir)
             {
                 <div class="crud-alert crud-alert-warning">
                     Tem certeza que deseja excluir o usuário abaixo?
@@ -32,7 +28,7 @@
                 <div class="crud-delete-item"><strong>E-mail:</strong> @Model.Email</div>
             </div>
 
-            @if (temEmprestimoAtivo)
+            @if (Model.TemEmprestimoAtivo)
             {
                 <div class="crud-alert crud-alert-danger">
                     Não é possível excluir este usuário porque ele possui empréstimo ativo.
@@ -43,7 +39,7 @@
                     <a asp-controller="Usuarios" asp-action="Index" class="crud-secondary-btn">Voltar</a>
                 </div>
             }
-            else if (temHistoricoEmprestimo)
+            else if (Model.TemHistoricoEmprestimo)
             {
                 <div class="crud-alert crud-alert-danger">
                     Não é possível excluir este usuário porque ele já possui histórico de empréstimos na biblioteca.

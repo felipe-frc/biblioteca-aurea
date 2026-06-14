@@ -197,7 +197,6 @@ namespace Biblioteca.Web.Controllers
                 return View(model);
             }
         }
-
         /// <summary>
         /// Exibe a tela de confirmação de exclusão de usuário.
         /// </summary>
@@ -216,10 +215,16 @@ namespace Biblioteca.Web.Controllers
             bool temHistoricoEmprestimo = _context.Emprestimos
                 .Any(e => e.UsuarioId == id);
 
-            ViewBag.TemEmprestimoAtivo = temEmprestimoAtivo;
-            ViewBag.TemHistoricoEmprestimo = temHistoricoEmprestimo;
+            var model = new UsuarioDeleteViewModel
+            {
+                Id = usuario.Id,
+                Nome = usuario.Nome,
+                Email = usuario.Email,
+                TemEmprestimoAtivo = temEmprestimoAtivo,
+                TemHistoricoEmprestimo = temHistoricoEmprestimo
+            };
 
-            return View(usuario);
+            return View(model);
         }
 
         /// <summary>

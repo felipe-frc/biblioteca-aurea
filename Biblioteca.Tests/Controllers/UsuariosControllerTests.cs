@@ -74,6 +74,12 @@ public class UsuariosControllerTests
         return Assert.IsType<UsuariosIndexViewModel>(viewResult.Model);
     }
 
+    private static UsuarioDeleteViewModel ObterDeleteViewModel(IActionResult result)
+    {
+        var viewResult = Assert.IsType<ViewResult>(result);
+        return Assert.IsType<UsuarioDeleteViewModel>(viewResult.Model);
+    }
+
     // =========================================================
     // Index
     // =========================================================
@@ -528,8 +534,9 @@ public class UsuariosControllerTests
     // Delete GET
     // =========================================================
 
+
     [Fact]
-    public void Delete_Get_ComIdExistenteSemEmprestimos_DeveRetornarViewComFlagsFalsas()
+    public void Delete_Get_ComIdExistenteSemEmprestimos_DeveRetornarViewModelComFlagsFalsas()
     {
         using var context = CriarContexto();
 
@@ -541,12 +548,14 @@ public class UsuariosControllerTests
 
         var result = controller.Delete(usuario.Id);
 
-        var viewResult = Assert.IsType<ViewResult>(result);
-        var model = Assert.IsType<Usuario>(viewResult.Model);
+        var model = ObterDeleteViewModel(result);
 
         Assert.Equal(usuario.Id, model.Id);
-        Assert.False(controller.ViewBag.TemEmprestimoAtivo);
-        Assert.False(controller.ViewBag.TemHistoricoEmprestimo);
+        Assert.Equal(usuario.Nome, model.Nome);
+        Assert.Equal(usuario.Email, model.Email);
+        Assert.False(model.TemEmprestimoAtivo);
+        Assert.False(model.TemHistoricoEmprestimo);
+        Assert.True(model.PodeExcluir);
     }
 
     [Fact]
@@ -561,7 +570,7 @@ public class UsuariosControllerTests
     }
 
     [Fact]
-    public void Delete_Get_ComEmprestimoAtivo_DeveRetornarFlagsVerdadeiras()
+    public void Delete_Get_ComEmprestimoAtivo_DeveRetornarViewModelComBloqueioPorEmprestimoAtivo()
     {
         using var context = CriarContexto();
 
@@ -580,16 +589,16 @@ public class UsuariosControllerTests
 
         var result = controller.Delete(usuario.Id);
 
-        var viewResult = Assert.IsType<ViewResult>(result);
-        var model = Assert.IsType<Usuario>(viewResult.Model);
+        var model = ObterDeleteViewModel(result);
 
         Assert.Equal(usuario.Id, model.Id);
-        Assert.True(controller.ViewBag.TemEmprestimoAtivo);
-        Assert.True(controller.ViewBag.TemHistoricoEmprestimo);
+        Assert.True(model.TemEmprestimoAtivo);
+        Assert.True(model.TemHistoricoEmprestimo);
+        Assert.False(model.PodeExcluir);
     }
 
     [Fact]
-    public void Delete_Get_ComHistoricoSemEmprestimoAtivo_DeveRetornarSomenteHistoricoVerdadeiro()
+    public void Delete_Get_ComHistoricoSemEmprestimoAtivo_DeveRetornarViewModelComBloqueioPorHistorico()
     {
         using var context = CriarContexto();
 
@@ -610,12 +619,12 @@ public class UsuariosControllerTests
 
         var result = controller.Delete(usuario.Id);
 
-        var viewResult = Assert.IsType<ViewResult>(result);
-        var model = Assert.IsType<Usuario>(viewResult.Model);
+        var model = ObterDeleteViewModel(result);
 
         Assert.Equal(usuario.Id, model.Id);
-        Assert.False(controller.ViewBag.TemEmprestimoAtivo);
-        Assert.True(controller.ViewBag.TemHistoricoEmprestimo);
+        Assert.False(model.TemEmprestimoAtivo);
+        Assert.True(model.TemHistoricoEmprestimo);
+        Assert.False(model.PodeExcluir);
     }
 
     // =========================================================
