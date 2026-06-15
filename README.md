@@ -4,7 +4,7 @@
 
 # 📚 Biblioteca Áurea
 
-Sistema web de gerenciamento de biblioteca desenvolvido com **ASP.NET Core MVC**, **Entity Framework Core** e **Azure SQL Server**, com foco em arquitetura em camadas, regras de negócio, autenticação administrativa, testes automatizados, cobertura de testes, CI/CD e deploy em nuvem.
+Sistema web de gerenciamento de biblioteca desenvolvido com **ASP.NET Core MVC**, **Entity Framework Core** e **Azure SQL Server**, com foco em arquitetura em camadas, regras de negócio, autenticação administrativa, ViewModels tipados, testes automatizados, cobertura de testes, CI/CD e deploy em nuvem.
 
 O projeto simula um sistema real para controle de biblioteca, com **catálogo público para visitantes**, **área administrativa protegida por login**, **dashboard com indicadores**, cadastro de livros e usuários, controle de empréstimos, devoluções, atrasos e histórico de movimentações.
 
@@ -32,11 +32,12 @@ O projeto cobre desde regras de domínio até publicação em nuvem, incluindo:
 - autenticação por cookie para proteção da área administrativa;
 - separação entre área pública e área administrativa;
 - regras de negócio para livros, usuários, empréstimos e devoluções;
+- uso de **ViewModels tipados** para reduzir acoplamento entre controllers e views;
 - testes automatizados com **xUnit**;
 - cobertura de testes com **Coverlet** e **Codecov**;
 - CI/CD com **GitHub Actions**;
 - deploy no **Azure App Service**;
-- configuração segura com **User Secrets** e variáveis de ambiente.
+- configuração segura com **User Secrets**, variáveis de ambiente e arquivo de exemplo sem credenciais reais.
 
 ---
 
@@ -46,11 +47,14 @@ O projeto cobre desde regras de domínio até publicação em nuvem, incluindo:
 - Catálogo público acessível sem login.
 - Área administrativa protegida por autenticação.
 - Dashboard com indicadores de acervo, usuários e empréstimos.
+- Controllers usando ViewModels tipados para listagens, dashboards e telas de exclusão.
+- Redução de dependência de `ViewBag` nas telas principais.
 - Controle de empréstimos ativos, atrasados, devolvidos e devolvidos com atraso.
 - Validações de regras de negócio no domínio.
 - Entity Framework Core com migrations.
 - Azure SQL Server como banco de dados em produção.
 - Configuração segura de credenciais fora do repositório.
+- Arquivo `appsettings.example.json` como template de configuração local.
 - Testes unitários, testes de services, ViewModels, controllers e integração.
 - Pipeline automatizado de build, testes, cobertura e deploy.
 - README estruturado para apresentação técnica e avaliação de portfólio.
@@ -65,7 +69,7 @@ A área pública permite que visitantes consultem o acervo sem autenticação.
 
 - Página inicial institucional;
 - Catálogo público de livros;
-- Busca por título, autor, gênero ou ISBN;
+- Busca por título, autor ou editora;
 - Filtro por disponibilidade;
 - Paginação no catálogo;
 - Exibição de informações bibliográficas;
@@ -78,29 +82,34 @@ A área administrativa é protegida por login e concentra as operações de gere
 #### 📊 Dashboard
 
 - Total de livros;
+- Livros disponíveis;
+- Livros emprestados;
 - Total de usuários;
 - Total de empréstimos;
 - Empréstimos ativos;
 - Empréstimos atrasados;
-- Indicadores resumidos para acompanhamento do acervo.
+- Empréstimos devolvidos;
+- Últimos empréstimos realizados;
+- Atalhos rápidos para cadastros e consultas.
 
 #### 📚 Livros
 
 - Cadastro de livros;
 - Edição de livros;
-- Exclusão com regras de proteção;
-- Listagem administrativa;
-- Busca e filtros;
+- Exclusão com regra de proteção quando houver empréstimos vinculados;
+- Listagem administrativa paginada;
+- Busca por título, autor ou editora;
+- Filtro por disponibilidade;
 - Controle de disponibilidade;
-- Dados bibliográficos como título, autor, gênero, ISBN, editora, ano de publicação e quantidade de páginas.
+- Dados bibliográficos como título, autor, editora, edição, data de publicação e número de páginas.
 
 #### 👥 Usuários
 
 - Cadastro de usuários;
 - Edição de usuários;
-- Exclusão com bloqueios quando houver empréstimos vinculados;
-- Listagem administrativa;
-- Busca por dados do usuário.
+- Exclusão com bloqueios quando houver empréstimos ativos ou histórico de empréstimos;
+- Listagem administrativa paginada;
+- Indicador de usuários inadimplentes.
 
 #### 🔄 Empréstimos
 
@@ -108,7 +117,8 @@ A área administrativa é protegida por login e concentra as operações de gere
 - Devolução de livros;
 - Cálculo de prazo previsto de devolução;
 - Identificação de empréstimos em atraso;
-- Diferenciação entre empréstimos atrasados em aberto e empréstimos devolvidos fora do prazo;
+- Filtro por status do empréstimo;
+- Diferenciação entre empréstimos ativos, atrasados e devolvidos;
 - Histórico de movimentações.
 
 ---
@@ -214,7 +224,33 @@ biblioteca-aurea/
 └── .gitignore
 ```
 
-> Observação: o projeto começou como uma versão console em memória nas primeiras releases. A estrutura atual foi evoluída para uma aplicação web ASP.NET Core MVC com domínio, aplicação web, testes automatizados, CI/CD e deploy no Azure.
+> Observação: o projeto começou como uma versão console em memória nas primeiras releases. A estrutura atual foi evoluída para uma aplicação web ASP.NET Core MVC com domínio, aplicação web, ViewModels tipados, testes automatizados, CI/CD e deploy no Azure.
+
+---
+
+## 🧩 ViewModels e Organização das Telas
+
+As telas principais utilizam **ViewModels tipados** para transportar dados da camada de controller para as Razor Views.
+
+Essa decisão reduz dependência de dados dinâmicos, melhora a previsibilidade das views e facilita a criação de testes automatizados.
+
+Principais ViewModels utilizados:
+
+```txt
+LivrosIndexViewModel
+LivroDeleteViewModel
+UsuariosIndexViewModel
+UsuarioDeleteViewModel
+EmprestimosIndexViewModel
+CatalogoIndexViewModel
+DashboardViewModel
+LivroFormViewModel
+UsuarioFormViewModel
+EmprestimoFormViewModel
+LoginViewModel
+```
+
+Com isso, as listagens, dashboards e telas de confirmação passam a ter contratos explícitos entre controller e view.
 
 ---
 
@@ -226,47 +262,47 @@ biblioteca-aurea/
 
 ### 📖 Catálogo Público
 
-![Catálogo Público](docs/images/catalogo-publico.png)
+![Catálogo Público](docs/images/catalogo.png)
 
 ### 🔐 Login Administrativo
 
-![Login Administrativo](docs/images/login-administrativo.png)
+![Login Administrativo](docs/images/login.png)
 
 ### 📊 Dashboard Administrativo
 
-![Dashboard Administrativo](docs/images/dashboard-administrativo.png)
+![Dashboard Administrativo](docs/images/dashboard.png)
 
 ### 📋 Listagem de Livros
 
-![Listagem de Livros](docs/images/livros-listagem.png)
+![Listagem de Livros](docs/images/livros.png)
 
 ### ➕ Cadastro de Livro
 
-![Cadastro de Livro](docs/images/livro-cadastro.png)
+![Cadastro de Livro](docs/images/cadastro-livros.png)
 
 ### ✏️ Edição de Livro
 
-![Edição de Livro](docs/images/livro-edicao.png)
+![Edição de Livro](docs/images/edicao-livros.png)
 
 ### 👥 Listagem de Usuários
 
-![Listagem de Usuários](docs/images/usuarios-listagem.png)
+![Listagem de Usuários](docs/images/usuarios.png)
 
 ### ➕ Cadastro de Usuário
 
-![Cadastro de Usuário](docs/images/usuario-cadastro.png)
+![Cadastro de Usuário](docs/images/cadastro-usuario.png)
 
 ### ✏️ Edição de Usuário
 
-![Edição de Usuário](docs/images/usuario-edicao.png)
+![Edição de Usuário](docs/images/edicao-usuario.png)
 
 ### 🔄 Controle de Empréstimos
 
-![Controle de Empréstimos](docs/images/emprestimos-listagem.png)
+![Controle de Empréstimos](docs/images/emprestimos.png)
 
 ### ➕ Novo Empréstimo
 
-![Novo Empréstimo](docs/images/emprestimo-cadastro.png)
+![Novo Empréstimo](docs/images/novo-emprestimo.png)
 
 ---
 
@@ -420,6 +456,12 @@ A pipeline principal também executa build, testes, publish e deploy para o Azur
 
 A separação entre `Biblioteca` para domínio, `Biblioteca.Web` para aplicação MVC e `Biblioteca.Tests` para testes mantém o projeto mais organizado, testável e preparado para evolução.
 
+### Uso de ViewModels tipados
+
+As telas principais utilizam ViewModels específicos em vez de depender de dados dinâmicos em `ViewBag`.
+
+Essa abordagem cria contratos mais claros entre controllers e views, facilita a manutenção e torna os testes de controller mais objetivos.
+
 ### Catálogo público separado da área administrativa
 
 Visitantes podem consultar o acervo sem login, enquanto operações de gerenciamento exigem autenticação. Essa separação aproxima o projeto de um cenário real: consulta pública de dados e controle interno protegido.
@@ -454,23 +496,24 @@ O Bootstrap foi utilizado para acelerar a construção da interface e manter o f
 
 ## 🧾 Releases
 
-| Versão | Destaque |
-| ------ | -------- |
-| [v3.6.1](https://github.com/felipe-frc/biblioteca-aurea/releases/tag/v3.6.1) | Template de configuração e documentação de ambiente |
-| [v3.6.0](https://github.com/felipe-frc/biblioteca-aurea/releases/tag/v3.6.0) | Cobertura de testes, Codecov e qualidade da suíte automatizada |
-| [v3.5.0](https://github.com/felipe-frc/biblioteca-aurea/releases/tag/v3.5.0) | Paginação no catálogo, CI/CD refinado e padronização de mensagens |
-| [v3.4.0](https://github.com/felipe-frc/biblioteca-aurea/releases/tag/v3.4.0) | Testes ampliados e melhoria no domínio de empréstimos |
-| [v3.3.0](https://github.com/felipe-frc/biblioteca-aurea/releases/tag/v3.3.0) | Expansão da cobertura de testes |
-| [v3.2.0](https://github.com/felipe-frc/biblioteca-aurea/releases/tag/v3.2.0) | Prazo previsto e empréstimos em atraso |
-| [v3.1.0](https://github.com/felipe-frc/biblioteca-aurea/releases/tag/v3.1.0) | Dashboard administrativo |
-| [v3.0.0](https://github.com/felipe-frc/biblioteca-aurea/releases/tag/v3.0.0) | Catálogo público e área administrativa com login |
-| [v2.4.0](https://github.com/felipe-frc/biblioteca-aurea/releases/tag/v2.4.0) | Dados bibliográficos dos livros |
-| [v2.3.0](https://github.com/felipe-frc/biblioteca-aurea/releases/tag/v2.3.0) | Deploy no Azure App Service |
-| [v2.2.0](https://github.com/felipe-frc/biblioteca-aurea/releases/tag/v2.2.0) | Migração para Azure SQL Server |
-| [v2.1.0](https://github.com/felipe-frc/biblioteca-aurea/releases/tag/v2.1.0) | Arquitetura em camadas e documentação técnica |
-| [v2.0.0](https://github.com/felipe-frc/biblioteca-aurea/releases/tag/v2.0.0) | CRUD MVC completo |
-| [v1.0.1](https://github.com/felipe-frc/biblioteca-aurea/releases/tag/v1.0.1) | Testes automatizados |
-| [v1.0.0](https://github.com/felipe-frc/biblioteca-aurea/releases/tag/v1.0.0) | Primeira versão console em memória |
+| Versão                                                                       | Destaque                                                                        |
+| ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| [v3.7.0](https://github.com/felipe-frc/biblioteca-aurea/releases/tag/v3.7.0) | ViewModels tipados, remoção de ViewBag e refinamento arquitetural das telas MVC |
+| [v3.6.1](https://github.com/felipe-frc/biblioteca-aurea/releases/tag/v3.6.1) | Template de configuração e documentação de ambiente                             |
+| [v3.6.0](https://github.com/felipe-frc/biblioteca-aurea/releases/tag/v3.6.0) | Cobertura de testes, Codecov e qualidade da suíte automatizada                  |
+| [v3.5.0](https://github.com/felipe-frc/biblioteca-aurea/releases/tag/v3.5.0) | Paginação no catálogo, CI/CD refinado e padronização de mensagens               |
+| [v3.4.0](https://github.com/felipe-frc/biblioteca-aurea/releases/tag/v3.4.0) | Testes ampliados e melhoria no domínio de empréstimos                           |
+| [v3.3.0](https://github.com/felipe-frc/biblioteca-aurea/releases/tag/v3.3.0) | Expansão da cobertura de testes                                                 |
+| [v3.2.0](https://github.com/felipe-frc/biblioteca-aurea/releases/tag/v3.2.0) | Prazo previsto e empréstimos em atraso                                          |
+| [v3.1.0](https://github.com/felipe-frc/biblioteca-aurea/releases/tag/v3.1.0) | Dashboard administrativo                                                        |
+| [v3.0.0](https://github.com/felipe-frc/biblioteca-aurea/releases/tag/v3.0.0) | Catálogo público e área administrativa com login                                |
+| [v2.4.0](https://github.com/felipe-frc/biblioteca-aurea/releases/tag/v2.4.0) | Dados bibliográficos dos livros                                                 |
+| [v2.3.0](https://github.com/felipe-frc/biblioteca-aurea/releases/tag/v2.3.0) | Deploy no Azure App Service                                                     |
+| [v2.2.0](https://github.com/felipe-frc/biblioteca-aurea/releases/tag/v2.2.0) | Migração para Azure SQL Server                                                  |
+| [v2.1.0](https://github.com/felipe-frc/biblioteca-aurea/releases/tag/v2.1.0) | Arquitetura em camadas e documentação técnica                                   |
+| [v2.0.0](https://github.com/felipe-frc/biblioteca-aurea/releases/tag/v2.0.0) | CRUD MVC completo                                                               |
+| [v1.0.1](https://github.com/felipe-frc/biblioteca-aurea/releases/tag/v1.0.1) | Testes automatizados                                                            |
+| [v1.0.0](https://github.com/felipe-frc/biblioteca-aurea/releases/tag/v1.0.0) | Primeira versão console em memória                                              |
 
 ---
 
