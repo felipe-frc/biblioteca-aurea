@@ -1,39 +1,8 @@
-﻿@model IEnumerable<Biblioteca.Domain.Entities.Emprestimo>
-@using System.Linq
-@using Biblioteca.Domain.Enums
+﻿@model Biblioteca.Web.ViewModels.EmprestimosIndexViewModel
 
 @{
     ViewData["Title"] = "Empréstimos";
     Layout = "~/Views/Shared/_LayoutInner.cshtml";
-
-    var emprestimos = Model?.ToList() ?? new List<Biblioteca.Domain.Entities.Emprestimo>();
-    var hoje = DateTime.Today;
-
-    foreach (var emprestimo in emprestimos)
-    {
-        emprestimo.AtualizarStatus(hoje);
-    }
-
-    var totalEmprestimos = ViewBag.TotalEmprestimos is int te ? te : emprestimos.Count;
-
-    var ativos = ViewBag.Ativos is int at
-        ? at
-        : emprestimos.Count(e => e.DataDevolucao is null && !e.EstaAtrasado(hoje));
-
-    var atrasados = ViewBag.Atrasados is int atr
-        ? atr
-        : emprestimos.Count(e => e.DataDevolucao is null && e.EstaAtrasado(hoje));
-
-    var devolvidos = ViewBag.Devolvidos is int de
-        ? de
-        : emprestimos.Count(e => e.DataDevolucao is not null);
-
-    var filtroStatus = ViewBag.FiltroStatus?.ToString() ?? "todos";
-
-    var currentPage = ViewBag.CurrentPage is int cp ? cp : 1;
-    var totalPages = ViewBag.TotalPages is int tp ? tp : 1;
-    var hasPreviousPage = ViewBag.HasPreviousPage is bool hp && hp;
-    var hasNextPage = ViewBag.HasNextPage is bool hn && hn;
 }
 
 <section class="crud-page crud-page-emprestimos">
@@ -55,7 +24,7 @@
         </div>
 
         <div class="crud-form-card mb-4">
-            <form method="get" action="/Emprestimos">
+            <form asp-controller="Emprestimos" asp-action="Index" method="get">
                 <div class="crud-form-grid">
                     <div class="crud-form-group crud-form-group-small">
                         <label for="filtroStatus" class="crud-form-label">Status do Empréstimo</label>
@@ -63,7 +32,7 @@
                         <select id="filtroStatus"
                                 name="filtroStatus"
                                 class="crud-form-control crud-form-select">
-                            @if (filtroStatus == "todos")
+                            @if (Model.FiltroStatus == "todos")
                             {
                                 <option value="todos" selected>Todos</option>
                             }
@@ -72,7 +41,7 @@
                                 <option value="todos">Todos</option>
                             }
 
-                            @if (filtroStatus == "ativos")
+                            @if (Model.FiltroStatus == "ativos")
                             {
                                 <option value="ativos" selected>Ativos</option>
                             }
@@ -81,7 +50,7 @@
                                 <option value="ativos">Ativos</option>
                             }
 
-                            @if (filtroStatus == "atrasados")
+                            @if (Model.FiltroStatus == "atrasados")
                             {
                                 <option value="atrasados" selected>Atrasados</option>
                             }
@@ -90,7 +59,7 @@
                                 <option value="atrasados">Atrasados</option>
                             }
 
-                            @if (filtroStatus == "devolvidos")
+                            @if (Model.FiltroStatus == "devolvidos")
                             {
                                 <option value="devolvidos" selected>Devolvidos</option>
                             }
@@ -104,20 +73,20 @@
 
                 <div class="crud-form-actions">
                     <button type="submit" class="crud-primary-btn">Filtrar</button>
-                    <a href="/Emprestimos" class="crud-secondary-btn">Limpar Filtros</a>
+                    <a asp-controller="Emprestimos" asp-action="Index" class="crud-secondary-btn">Limpar Filtros</a>
                 </div>
             </form>
         </div>
 
-        @if (!emprestimos.Any())
+        @if (!Model.HasEmprestimos)
         {
             <div class="crud-empty-state">
                 <h3>Nenhum empréstimo encontrado.</h3>
 
-                @if (filtroStatus != "todos")
+                @if (Model.HasFiltroStatus)
                 {
                     <p>Nenhum resultado corresponde ao status selecionado.</p>
-                    <a href="/Emprestimos" class="crud-secondary-btn mt-3">Limpar Filtros</a>
+                    <a asp-controller="Emprestimos" asp-action="Index" class="crud-secondary-btn mt-3">Limpar Filtros</a>
                 }
                 else
                 {
@@ -144,33 +113,33 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var e in emprestimos)
+                            @foreach (var emprestimo in Model.Emprestimos)
                             {
-                                var estaAtrasado = e.DataDevolucao is null && e.EstaAtrasado(hoje);
+                                var estaAtrasado = emprestimo.DataDevolucao is null && emprestimo.EstaAtrasado(Model.Hoje);
                                 var diasAtraso = estaAtrasado
-                                ? (hoje - e.DataPrevistaDevolucao.Date).Days
+                                ? (Model.Hoje - emprestimo.DataPrevistaDevolucao.Date).Days
                                 : 0;
 
-                                var statusTexto = e.DataDevolucao is not null
+                                var statusTexto = emprestimo.DataDevolucao is not null
                                 ? "Devolvido"
                                 : estaAtrasado
                                 ? "Atrasado"
                                 : "Ativo";
 
-                                var statusClasse = e.DataDevolucao is not null
+                                var statusClasse = emprestimo.DataDevolucao is not null
                                 ? "crud-pill-success"
                                 : estaAtrasado
                                 ? "crud-pill-danger"
                                 : "crud-pill-warning";
 
                                 <tr>
-                                    <td class="crud-id" data-label="ID">@e.Id</td>
-                                    <td class="crud-strong" data-label="Livro">@e.Livro?.Titulo</td>
-                                    <td data-label="Usuário">@e.Usuario?.Nome</td>
-                                    <td data-label="Retirada">@e.DataEmprestimo.ToString("dd/MM/yyyy")</td>
-                                    <td data-label="Previsão">@e.DataPrevistaDevolucao.ToString("dd/MM/yyyy")</td>
+                                    <td class="crud-id" data-label="ID">@emprestimo.Id</td>
+                                    <td class="crud-strong" data-label="Livro">@emprestimo.Livro?.Titulo</td>
+                                    <td data-label="Usuário">@emprestimo.Usuario?.Nome</td>
+                                    <td data-label="Retirada">@emprestimo.DataEmprestimo.ToString("dd/MM/yyyy")</td>
+                                    <td data-label="Previsão">@emprestimo.DataPrevistaDevolucao.ToString("dd/MM/yyyy")</td>
                                     <td data-label="Devolução">
-                                        @(e.DataDevolucao is null ? "-" : e.DataDevolucao.Value.ToString("dd/MM/yyyy"))
+                                        @(emprestimo.DataDevolucao is null ? "-" : emprestimo.DataDevolucao.Value.ToString("dd/MM/yyyy"))
                                     </td>
                                     <td data-label="Status">
                                         <span class="crud-pill @statusClasse">
@@ -191,11 +160,11 @@
                                     </td>
                                     <td class="crud-actions-cell" data-label="Ações">
                                         <div class="crud-actions">
-                                            @if (e.DataDevolucao is null)
+                                            @if (emprestimo.DataDevolucao is null)
                                             {
                                                 <form asp-controller="Emprestimos"
                                                       asp-action="Devolver"
-                                                      asp-route-id="@e.Id"
+                                                      asp-route-id="@emprestimo.Id"
                                                       method="post"
                                                       class="crud-inline-form">
                                                     @Html.AntiForgeryToken()
@@ -223,16 +192,16 @@
                 </div>
             </div>
 
-            @if (totalPages > 0)
+            @if (Model.TotalPages > 0)
             {
                 <nav class="crud-pagination" aria-label="Paginação">
-                    @if (hasPreviousPage)
+                    @if (Model.HasPreviousPage)
                     {
                         <a class="crud-pagination-link"
                            asp-controller="Emprestimos"
                            asp-action="Index"
-                           asp-route-page="@(currentPage - 1)"
-                           asp-route-filtroStatus="@filtroStatus">
+                           asp-route-page="@(Model.CurrentPage - 1)"
+                           asp-route-filtroStatus="@Model.FiltroStatus">
                             Anterior
                         </a>
                     }
@@ -241,9 +210,9 @@
                         <span class="crud-pagination-link is-disabled">Anterior</span>
                     }
 
-                    @for (int i = 1; i <= totalPages; i++)
+                    @for (int i = 1; i <= Model.TotalPages; i++)
                     {
-                        if (i == currentPage)
+                        if (i == Model.CurrentPage)
                         {
                             <span class="crud-pagination-link is-active">@i</span>
                         }
@@ -253,19 +222,19 @@
                                asp-controller="Emprestimos"
                                asp-action="Index"
                                asp-route-page="@i"
-                               asp-route-filtroStatus="@filtroStatus">
+                               asp-route-filtroStatus="@Model.FiltroStatus">
                                 @i
                             </a>
                         }
                     }
 
-                    @if (hasNextPage)
+                    @if (Model.HasNextPage)
                     {
                         <a class="crud-pagination-link"
                            asp-controller="Emprestimos"
                            asp-action="Index"
-                           asp-route-page="@(currentPage + 1)"
-                           asp-route-filtroStatus="@filtroStatus">
+                           asp-route-page="@(Model.CurrentPage + 1)"
+                           asp-route-filtroStatus="@Model.FiltroStatus">
                             Próxima
                         </a>
                     }
@@ -280,28 +249,28 @@
                 <div class="col-lg-3 col-md-6">
                     <div class="crud-stat-card crud-stat-gold">
                         <span class="crud-stat-label">Empréstimos Encontrados</span>
-                        <strong class="crud-stat-value">@totalEmprestimos</strong>
+                        <strong class="crud-stat-value">@Model.TotalEmprestimos</strong>
                     </div>
                 </div>
 
                 <div class="col-lg-3 col-md-6">
                     <div class="crud-stat-card crud-stat-blue">
                         <span class="crud-stat-label">Ativos</span>
-                        <strong class="crud-stat-value">@ativos</strong>
+                        <strong class="crud-stat-value">@Model.Ativos</strong>
                     </div>
                 </div>
 
                 <div class="col-lg-3 col-md-6">
                     <div class="crud-stat-card crud-stat-gold">
                         <span class="crud-stat-label">Atrasados</span>
-                        <strong class="crud-stat-value">@atrasados</strong>
+                        <strong class="crud-stat-value">@Model.Atrasados</strong>
                     </div>
                 </div>
 
                 <div class="col-lg-3 col-md-6">
                     <div class="crud-stat-card crud-stat-blue">
                         <span class="crud-stat-label">Devolvidos</span>
-                        <strong class="crud-stat-value">@devolvidos</strong>
+                        <strong class="crud-stat-value">@Model.Devolvidos</strong>
                     </div>
                 </div>
             </div>
